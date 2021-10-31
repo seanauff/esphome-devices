@@ -10,3 +10,8 @@ wifi:
     password: !secret wifi_password
 
 captive_portal:
+
+sensor:
+  - platform: wifi_signal
+    name: "${name} WiFi Signal"
+    update_interval: 60s
