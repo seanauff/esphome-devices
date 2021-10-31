@@ -12,3 +12,7 @@ ota:
 #  broker: !secret mqtt_broker
 
 web_server:
+
+sensor:
+  - platform: uptime
+    name: "${name} Uptime"
