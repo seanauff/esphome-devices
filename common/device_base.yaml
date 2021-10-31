@@ -1,0 +1,14 @@
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret hass_api_password
+
+ota:
+  password: !secret ota_password
+
+#mqtt:
+#  broker: !secret mqtt_broker
+
+web_server:

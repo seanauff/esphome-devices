@@ -1,0 +1,47 @@
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO14
+      inverted: True
+    name: "${name}_button"
+    on_press:
+      then:
+        - switch.toggle: "${name}_Relay"
+        - switch.toggle: "${name}_LED_Blue"
+
+switch:
+  - platform: gpio
+    name: "${name}_Relay"
+    id: "${name}_Relay"
+    pin: GPIO04
+    restore_mode: RESTORE_DEFAULT_ON
+  - platform: gpio
+    name: "${name}_LED_Blue"
+    id: "${name}_LED_Blue"
+    pin: GPIO05
+    inverted: False
+    restore_mode: RESTORE_DEFAULT_ON
+
+sensor:
+  - platform: hlw8012
+    sel_pin: GPIO16
+    cf_pin: GPIO13
+    cf1_pin: GPIO12
+    current_resistor: 0.002
+    voltage_divider: 2351
+    current:
+      name: "${name} Current"
+      unit_of_measurement: A
+      accuracy_decimals: 3
+    voltage:
+      name: "${name} Voltage"
+      unit_of_measurement: V
+      accuracy_decimals: 1
+    power:
+      name: "${name} Power"
+      unit_of_measurement: W
+      accuracy_decimals: 0
+    update_interval: 5s
+    initial_mode: VOLTAGE
+    change_mode_every: 4294967295
+    
