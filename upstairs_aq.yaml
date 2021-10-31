@@ -3,16 +3,16 @@ substitutions:
 
 esphome:
   name: ${name}
-  platform: ESP32
-  board: nodemcu-32s
+  platform: ESP8266
+  board: nodemcuv2
 
 packages:
   wifi: !include common/wifi.yaml
   device_base: !include common/device_base.yaml
 
 i2c:
-  sda: 21
-  scl: 22
+  sda: D2
+  scl: D1
   scan: true
   #id: bus_a
 
@@ -21,7 +21,7 @@ sensor:
 ## Pocket Geiger Radiation Sensor - Type 5
   - platform: pulse_counter
     pin:
-      number: 12
+      number: D5
       mode:
         input: true
         pullup: true
@@ -37,17 +37,18 @@ sensor:
     total:
       name: "${name} Total Radiation Counts"
       unit_of_measurement: "counts"
+      icon: "mdi:radioactive"
 
   - platform: template
     name: "${name} Radiation Dose Rate"
-    unit_of_measurement: "uS/hr"
+    unit_of_measurement: "µS/hr"
     icon: "mdi:radioactive"
     lambda: |-
-      return id(${name}_cpm).state * 0.08;
+      return id(${name}_radiation_cpm).state * 0.08;
 
   - platform: pulse_counter
     pin:
-      number: 13
+      number: D6
       mode:
         input: true
         pullup: true
@@ -63,11 +64,12 @@ sensor:
     total:
       name: "${name} Total Noise Counts"
       unit_of_measurement: "counts"
+      icon: "mdi:bell-alert"
 
 ## SCD30 CO2 sensor
   - platform: scd30
     co2:
-      name: "${name} CO2"
+      name: "${name} NDIR CO2"
       accuracy_decimals: 0
     temperature:
       name: "${name} Temperature"
@@ -80,23 +82,23 @@ sensor:
     #temperature_offset: 1.5 °C
     automatic_self_calibration: true
     #ambient_pressure_compensation: 800
-    altitude_compensation: 1829
+    altitude_compensation: 1829m
     address: 0x61
     update_interval: 60s
 
 ## Particulate Matter Sensor - SPS30
   - platform: sps30
     pm_1_0:
-      name: "${name} PM <1µm Weight concentration"
+      name: "${name} PM <1µm Mass concentration"
       id: "${name}_PM_1_0"
     pm_2_5:
-      name: "${name} PM <2.5µm Weight concentration"
+      name: "${name} PM <2.5µm Mass concentration"
       id: "${name}_PM_2_5"
     pm_4_0:
-      name: "${name} PM <4µm Weight concentration"
+      name: "${name} PM <4µm Mass concentration"
       id: "${name}_PM_4_0"
     pm_10_0:
-      name: "${name} PM <10µm Weight concentration"
+      name: "${name} PM <10µm Mass concentration"
       id: "${name}_PM_10_0"
     pmc_0_5:
       name: "${name} PM <0.5µm Number concentration"
@@ -120,9 +122,9 @@ sensor:
 
   - platform: ccs811
     eco2:
-      name: "${name} CCS811 eCO2"
+      name: "${name} eCO2"
     tvoc:
-      name: "${name} CCS811 TVOC"
+      name: "${name} TVOC"
     address: 0x5A
     temperature: "${name}_temperature"
     humidity: "${name}_humidity"
