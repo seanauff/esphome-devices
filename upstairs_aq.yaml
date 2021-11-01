@@ -35,7 +35,7 @@ output:
 sensor:
 
 ##### Pocket Geiger Radiation Sensor - Type 5 #####
-# Radiation pulse input
+# Radiation pulse input using pulse counter (https://esphome.io/components/sensor/pulse_counter.html)
   - platform: pulse_counter
     pin:
       number: D5
@@ -52,11 +52,6 @@ sensor:
     internal_filter: 200us
     update_interval: 120s
     accuracy_decimals: 1
-    on_raw_value: # blink onboard LED whenever a pulse is detected
-      then:
-        - output.turn_on: gpio_d4
-        - delay: 50ms
-        - output.turn_off: gpio_d4
     total:
       name: "${name} Total Radiation Counts"
       id: "${name}_total_radiation_counts"
