@@ -34,15 +34,18 @@ sensor:
       falling_edge: INCREMENT
     #internal_filter: 13us
     update_interval: 120s
+    accuracy_decimals: 1
     total:
       name: "${name} Total Radiation Counts"
       unit_of_measurement: "counts"
       icon: "mdi:radioactive"
+      accuracy_decimals: 0
 
   - platform: template
     name: "${name} Radiation Dose Rate"
     unit_of_measurement: "µS/hr"
     icon: "mdi:radioactive"
+    accuracy_decimals: 2
     lambda: |-
       return id(${name}_radiation_cpm).state * 0.08;
 
@@ -61,10 +64,12 @@ sensor:
       falling_edge: INCREMENT
     #internal_filter: 13us
     update_interval: 60s
+    accuracy_decimals: 1
     total:
       name: "${name} Total Noise Counts"
       unit_of_measurement: "counts"
       icon: "mdi:bell-alert"
+      accuracy_decimals: 0
 
 ## SCD30 CO2 sensor
   - platform: scd30
