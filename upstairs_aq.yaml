@@ -1,6 +1,12 @@
 substitutions:
   name: upstairs_aq
-  conv_factor: 0.0725 # to convert CPM to uSv/hr (data from here: https://cdn.sparkfun.com/assets/learn_tutorials/1/4/3/GeigerCounterType5_Certification_VSL_cert_3320408.pdf)
+
+globals:
+# to convert CPM to uSv/hr (data from here: https://cdn.sparkfun.com/assets/learn_tutorials/1/4/3/GeigerCounterType5_Certification_VSL_cert_3320408.pdf)
+   - id: conv_factor 
+     type: float
+     restore_value: no
+     initial_value: '0.0725'
 
 esphome:
   name: ${name}
@@ -65,7 +71,7 @@ sensor:
     icon: "mdi:radioactive"
     accuracy_decimals: 2
     lambda: |-
-      return id(${name}_radiation_cpm).state * ${conv_factor};
+      return id(${name}_radiation_cpm).state * id(conv_factor);
 
 # Calculate long term CPM (since boot) from total counts and uptime
   - platform: template
@@ -84,7 +90,7 @@ sensor:
     icon: "mdi:radioactive"
     accuracy_decimals: 3
     lambda: |-
-      return id(${name}_long_term_radiation_cpm).state * ${conv_factor};
+      return id(${name}_long_term_radiation_cpm).state * id(conv_factor);
 
 # Noise pulse input
   - platform: pulse_counter
