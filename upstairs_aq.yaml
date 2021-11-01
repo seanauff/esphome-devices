@@ -74,8 +74,8 @@ sensor:
     accuracy_decimals: 1
     timeout: 1 min
     filters:
-      # moving average filter to smooth the random nature of detected events
-      - sliding_window_moving_average:
+      # moving median filter to smooth the random nature of detected events (note: using average will artificially increase cpm)
+      - median:
           window_size: 10
           send_every: 10
           send_first_at: 10
