@@ -59,6 +59,40 @@ sensor:
       icon: "mdi:radioactive"
       accuracy_decimals: 0
 
+# Radiation pulse input using pulse meter (https://esphome.io/components/sensor/pulse_meter.html)
+  - platform: pulse_meter
+    pin:
+      number: D7
+      mode:
+        input: true
+        pullup: true
+    name: "${name} Radiation CPM meter"
+    id: "${name}_radiation_cpm_meter"
+    unit_of_measurement: "cpm"
+    icon: "mdi:radioactive"
+    internal_filter: 200us
+    accuracy_decimals: 1
+    timeout: 1 min
+    filters:
+      # moving average filter to smooth the random nature of detected events
+      - sliding_window_moving_average:
+          window_size: 10
+          send_every: 10
+          send_first_at: 10
+      # Convert pulses/min (Wh/min) to kW
+      - multiply: 0.06
+    on_raw_value: # blink onboard LED whenever a pulse is detected
+      then:
+        - output.turn_on: gpio_d4
+        - delay: 50ms
+        - output.turn_off: gpio_d4
+    total:
+      name: "${name} Total Radiation Counts meter"
+      id: "${name}_total_radiation_counts_meter"
+      unit_of_measurement: "counts"
+      icon: "mdi:radioactive"
+      accuracy_decimals: 0
+
 # Calculate dose rate (µS/hr) from CPM
   - platform: template
     name: "${name} Radiation Dose Rate"
