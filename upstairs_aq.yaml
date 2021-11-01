@@ -1,5 +1,6 @@
 substitutions:
   name: upstairs_aq
+  conv_factor: 0.0725 # to convert CPM to uSv/hr (data from here: https://cdn.sparkfun.com/assets/learn_tutorials/1/4/3/GeigerCounterType5_Certification_VSL_cert_3320408.pdf)
 
 esphome:
   name: ${name}
@@ -63,15 +64,24 @@ sensor:
     icon: "mdi:radioactive"
     accuracy_decimals: 2
     lambda: |-
-      return id(${name}_radiation_cpm).state * 0.08;
+      return id(${name}_radiation_cpm).state * ${conv_factor};
 
   - platform: template
     name: "${name} Long Term Radiation CPM"
+    id: "${name}_long_term_radiation_cpm"
     unit_of_measurement: "cpm"
     icon: "mdi:radioactive"
     accuracy_decimals: 2
     lambda: |-
       return id(${name}_total_radiation_counts).state / id(${name}_uptime).state * 60.0;
+
+  - platform: template
+    name: "${name} Long Term Radiation Dose Rate"
+    unit_of_measurement: "µS/hr"
+    icon: "mdi:radioactive"
+    accuracy_decimals: 3
+    lambda: |-
+      return id(${name}_long_term_radiation_cpm).state * ${conv_factor};
 
 # Noise pulse input
   - platform: pulse_counter
