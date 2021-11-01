@@ -17,3 +17,7 @@ sensor:
   - platform: uptime
     name: "${name} Uptime"
     id: "${name}_uptime"
+
+text_sensor:
+  - platform: version
+    name: "${name} ESPHome Version"
