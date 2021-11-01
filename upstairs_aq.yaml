@@ -79,8 +79,6 @@ sensor:
           window_size: 10
           send_every: 10
           send_first_at: 10
-      # Convert pulses/min (Wh/min) to kW
-      - multiply: 0.06
     on_raw_value: # blink onboard LED whenever a pulse is detected
       then:
         - output.turn_on: gpio_d4
