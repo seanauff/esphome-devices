@@ -16,3 +16,4 @@ web_server:
 sensor:
   - platform: uptime
     name: "${name} Uptime"
+    id: "${name}_uptime"
