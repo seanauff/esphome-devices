@@ -16,9 +16,19 @@ i2c:
   scan: true
   #id: bus_a
 
+# NodeMCU onboard LED
+output:
+  - platform: gpio
+    pin:
+      number: D4
+      inverted: true
+      mode: OUTPUT
+    id: gpio_d4
+
 sensor:
 
 ## Pocket Geiger Radiation Sensor - Type 5
+# Radiation pulse input
   - platform: pulse_counter
     pin:
       number: D5
@@ -32,11 +42,17 @@ sensor:
     count_mode:
       rising_edge: DISABLE
       falling_edge: INCREMENT
-    #internal_filter: 13us
+    internal_filter: 200us
     update_interval: 120s
     accuracy_decimals: 1
+    on_raw_value: # blink onboard LED whenever a pulse is detected
+      then:
+        - output.turn_on: gpio_d4
+        - delay: 50ms
+        - output.turn_off: gpio_d4
     total:
       name: "${name} Total Radiation Counts"
+      id: "${name}_total_radiation_counts"
       unit_of_measurement: "counts"
       icon: "mdi:radioactive"
       accuracy_decimals: 0
@@ -49,6 +65,15 @@ sensor:
     lambda: |-
       return id(${name}_radiation_cpm).state * 0.08;
 
+  - platform: template
+    name: "${name} Long Term Radiation CPM"
+    unit_of_measurement: "cpm"
+    icon: "mdi:radioactive"
+    accuracy_decimals: 2
+    lambda: |-
+      return id(${name}_total_radiation_counts).state / id(${name}_uptime).state * 60.0;
+
+# Noise pulse input
   - platform: pulse_counter
     pin:
       number: D6
@@ -86,7 +111,7 @@ sensor:
       accuracy_decimals: 0
     #temperature_offset: 1.5 °C
     automatic_self_calibration: true
-    #ambient_pressure_compensation: 800
+    #ambient_pressure_compensation: 800mbar
     altitude_compensation: 1829m
     address: 0x61
     update_interval: 60s
@@ -124,7 +149,6 @@ sensor:
     update_interval: 60s
 
 ## CCS811 TVOC sensor
-
   - platform: ccs811
     eco2:
       name: "${name} eCO2"
