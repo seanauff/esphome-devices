@@ -50,17 +50,20 @@ sensor:
       rising_edge: DISABLE
       falling_edge: INCREMENT
     internal_filter: 200us
-    update_interval: 120s
+    update_interval: 300s # report every 5 minutes
     accuracy_decimals: 1
-    total:
-      name: "${name} Total Radiation Counts"
-      id: "${name}_total_radiation_counts"
-      unit_of_measurement: "counts"
-      icon: "mdi:radioactive"
-      accuracy_decimals: 0
+    filters:
+      - filter_out: 0.0 # don't send a 0.0 value (this occurs on boot)
+    # total: # don't use this (updates only every update_interval)
+    #   name: "${name} Total Radiation Counts"
+    #   id: "${name}_total_radiation_counts"
+    #   unit_of_measurement: "counts"
+    #   icon: "mdi:radioactive"
+    #   accuracy_decimals: 0
 
 # Radiation pulse input using pulse meter (https://esphome.io/components/sensor/pulse_meter.html)
   - platform: pulse_meter
+    internal: true # do not expose to home assistant (radiation detection events are random, calculating rate this way results in huge spikes, using the filters overestimates the rate)
     pin:
       number: D7
       mode:
@@ -73,20 +76,21 @@ sensor:
     internal_filter: 200us
     accuracy_decimals: 1
     timeout: 1 min
-    filters:
-      # moving median filter to smooth the random nature of detected events (note: using average will artificially increase cpm)
-      - median:
-          window_size: 10
-          send_every: 10
-          send_first_at: 10
+    # filters:
+      # moving median filter to smooth the random nature of detected events (note: using this or moving average artificially increases cpm)
+      # - median:
+      #     window_size: 10
+      #     send_every: 10
+      #     send_first_at: 10
     on_raw_value: # blink onboard LED whenever a pulse is detected
       then:
         - output.turn_on: gpio_d4
         - delay: 50ms
         - output.turn_off: gpio_d4
     total:
-      name: "${name} Total Radiation Counts meter"
-      id: "${name}_total_radiation_counts_meter"
+      internal: false # do expose this, it updates on every detected pulse
+      name: "${name} Total Radiation Counts"
+      id: "${name}_total_radiation_counts"
       unit_of_measurement: "counts"
       icon: "mdi:radioactive"
       accuracy_decimals: 0
