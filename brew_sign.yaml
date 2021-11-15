@@ -1,0 +1,30 @@
+substitutions:
+  name: brew_sign
+
+esphome:
+  name: ${name}
+  platform: ESP8266
+  board: esp01_1m
+
+packages:
+  wifi: !include common/wifi.yaml
+  device_base: !include common/device_base.yaml
+
+# Example configuration entry
+light:
+  - platform: monochromatic
+    name: "Brew Sign"
+    output: light_output
+    effects:
+      - pulse:
+          name: "Pulse"
+          transition_length: 1s      # defaults to 1s
+          update_interval: 2s
+      - random:
+      - flicker:
+
+output:
+  - platform: esp8266_pwm
+    pin: GPIO2
+    frequency: 1000 Hz
+    id: light_output
