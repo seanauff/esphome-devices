@@ -18,16 +18,26 @@ light:
     effects:
       - pulse:
           name: "Pulse"
-          transition_length: 1s      # defaults to 1s
-          update_interval: 2s
+          transition_length: 1.0s      # defaults to 1s
+          update_interval: 1.0s
+      - pulse:
+          name: "Flash"
+          transition_length: 0.0s      # defaults to 1s
+          update_interval: 1.0s
       - random:
+          name: "Random"
+          transition_length: 3s
+          update_interval: 5s
       - flicker:
+          name: "Flicker"
+          alpha: 95%
+          intensity: 5.0%
 
 output:
   - platform: esp8266_pwm
     pin: GPIO2
     frequency: 1000 Hz
     id: light_output
-    min_power: 0.12
+    min_power: 0.06
     max_power: 1.00
     zero_means_zero: true
