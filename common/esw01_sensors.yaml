@@ -36,9 +36,9 @@ switch:
     id: switch_relay
     output: relay
     on_turn_on:
-      - output.turn_on: led
+      - output.turn_on: led_yellow
     on_turn_off:
-      - output.turn_off: led
+      - output.turn_off: led_yellow
 
 sensor:
   - platform: hlw8012
