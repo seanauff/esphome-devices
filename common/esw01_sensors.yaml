@@ -1,26 +1,45 @@
+### pins ###
+# D1 GPIO5  | LED blue    | status_led
+# D0 GPIO16 | LED yellow  | led_yellow
+# D5 GPIO14 | SW1         | button
+# D2 GPIO4  | REL1        | relay
+# D6 GPIO12 | HLW8012/CF1 | cf1_pin
+# D7 GPIO13 | HLW8012/CF  | cf_pin
+
 binary_sensor:
   - platform: gpio
     pin:
       number: GPIO14
+      mode: INPUT_PULLUP
       inverted: True
-    name: "${name}_button"
+    # name: "${name}_button"
+    id: button
     on_press:
       then:
-        - switch.toggle: "${name}_Relay"
-        - switch.toggle: "${name}_LED_Blue"
+        - switch.toggle: switch
+
+status_led:
+  pin:
+    number: GPIO5
+
+output:
+- platform: gpio
+  id: relay
+  pin: GPIO4
+- platform: gpio
+  id: led_yellow
+  pin: GPIO16
 
 switch:
-  - platform: gpio
+  - platform: output
     name: "${name}_Relay"
-    id: "${name}_Relay"
-    pin: GPIO04
+    id: switch
+    output: relay
     restore_mode: RESTORE_DEFAULT_ON
-  - platform: gpio
-    name: "${name}_LED_Blue"
-    id: "${name}_LED_Blue"
-    pin: GPIO05
-    inverted: False
-    restore_mode: RESTORE_DEFAULT_ON
+    on_turn_on:
+      - output.turn_on: led
+    on_turn_off:
+      - output.turn_off: led
 
 sensor:
   - platform: hlw8012
@@ -29,19 +48,30 @@ sensor:
     cf1_pin: GPIO12
     current_resistor: 0.002
     voltage_divider: 2351
-    current:
-      name: "${name} Current"
-      unit_of_measurement: A
-      accuracy_decimals: 3
+    # current:
+    #   name: "${name} Current"
+    #   unit_of_measurement: A
+    #   accuracy_decimals: 3
     voltage:
       name: "${name} Voltage"
+      id: hlw8012_voltage
       unit_of_measurement: V
       accuracy_decimals: 1
     power:
       name: "${name} Power"
+      id: hlw8012_power
       unit_of_measurement: W
       accuracy_decimals: 0
-    update_interval: 5s
+      on_value:
+        - sensor.template.publish:
+            id: hlw8012_current_calculated
+            state: !lambda 'return id(hlw8012_power).state / id(hlw8012_voltage).state;'
+    update_interval: 10s
     initial_mode: VOLTAGE
-    change_mode_every: 4294967295
+    change_mode_every: 4294967295 # basically never
+  - platform: template
+    id: hlw8012_current_calculated
+    name: "${name} Current"
+    unit_of_measurement: A
+    accuracy_decimals: 2
     
