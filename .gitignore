@@ -10,3 +10,4 @@
 **/platformio.ini
 **/secrets.yaml
 **/.vscode
+**/partitions.csv
