@@ -36,8 +36,14 @@ sensor:
       name: "Airthings WavePlus Basement Temperature"
     radon:
       name: "Airthings WavePlus Basement Radon"
+      unit_of_measurement: "pCi/L"
+      filters:
+        - lambda: return x / 37.0; # convert to pCi/L from Bq/m^3
     radon_long_term:
       name: "Airthings WavePlus Basement Radon Long Term"
+      unit_of_measurement: "pCi/L"
+      filters:
+        - lambda: return x / 37.0; # convert to pCi/L from Bq/m^3
     pressure:
       name: "Airthings WavePlus Basement Pressure"
     humidity:
