@@ -1,0 +1,68 @@
+substitutions:
+  name: rf_hub
+
+esphome:
+  name: ${name}
+  platform: ESP32
+  board: nodemcu-32s
+
+packages:
+  wifi: !include common/wifi.yaml
+  device_base: !include common/device_base.yaml
+
+remote_transmitter:
+  pin: GPIO32
+  carrier_duty_percent: 100%
+  id: tx_315
+
+# Individual switches
+switch:
+# https://www.homedepot.com/p/Defiant-Wireless-Indoor-Outdoor-Remote-Control-with-3-RCV-YLT-42-3/301844754
+  - platform: template
+    name: "Defiant Outlet 1"
+    turn_on_action:
+      remote_transmitter.transmit_raw:
+        transmitter_id: tx_315
+        repeat:
+          times: 10
+          wait_time: 1ms
+        code: [632,-232,232,-632,632,-232,232,-632,632,-232,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,632,-232,232,-632,232,-632,232,-632,632,-232,232]
+    turn_off_action:
+      remote_transmitter.transmit_raw:
+        transmitter_id: tx_315
+        repeat:
+          times: 10
+          wait_time: 1ms
+        code: [632,-232,232,-632,632,-232,232,-632,632,-232,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,632,-232,632,-232,232,-632,232,-632,232,-632,232]
+  - platform: template
+    name: "Defiant Outlet 2"
+    turn_on_action:
+      remote_transmitter.transmit_raw:
+        transmitter_id: tx_315
+        repeat:
+          times: 10
+          wait_time: 1ms
+        code: [632,-232,232,-632,632,-232,232,-632,632,-232,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,632,-232,232,-632,232,-632,632,-232,232,-632,232]
+    turn_off_action:
+      remote_transmitter.transmit_raw:
+        transmitter_id: tx_315
+        repeat:
+          times: 10
+          wait_time: 1ms
+        code: [632,-232,232,-632,632,-232,232,-632,632,-232,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,632,-232,232,-632,632,-232,632,-232,232,-632,232]
+  - platform: template
+    name: "Defiant Outlet 3"
+    turn_on_action:
+      remote_transmitter.transmit_raw:
+        transmitter_id: tx_315
+        repeat:
+          times: 10
+          wait_time: 1ms
+        code: [632,-232,232,-632,632,-232,232,-632,632,-232,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,632,-232,232,-632,632,-232,232,-632,232,-632,232]
+    turn_off_action:
+      remote_transmitter.transmit_raw:
+        transmitter_id: tx_315
+        repeat:
+          times: 10
+          wait_time: 1ms
+        code: [632,-232,232,-632,632,-232,232,-632,632,-232,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,232,-632,232,-632,632,-232,632,-232,632,-232,232,-632,632,-232,232,-632,632,-232,232]
