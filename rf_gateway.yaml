@@ -60,6 +60,7 @@ switch:
 # https://www.homedepot.com/p/Defiant-Wireless-Indoor-Outdoor-Remote-Control-with-3-RCV-YLT-42-3/301844754
   - platform: template
     name: "Defiant Outlet 1"
+    optimistic: true
     assumed_state: true
     turn_on_action:
       - light.turn_on: onboard_led
@@ -81,6 +82,7 @@ switch:
       - light.turn_off: onboard_led
   - platform: template
     name: "Defiant Outlet 2"
+    optimistic: true
     assumed_state: true
     turn_on_action:
       - light.turn_on: onboard_led
@@ -102,6 +104,7 @@ switch:
       - light.turn_off: onboard_led
   - platform: template
     name: "Defiant Outlet 3"
+    optimistic: true
     assumed_state: true
     turn_on_action:
       - light.turn_on: onboard_led
