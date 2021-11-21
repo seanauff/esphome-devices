@@ -34,6 +34,10 @@ sensor:
     update_interval: 5min # default
     temperature:
       name: "Airthings WavePlus Basement Temperature"
+      unit_of_measurement: "°F"
+      accuracy_decimals: 1
+      filters:
+        - lambda: return x * (9.0/5.0) + 32.0; # convert to °F
     radon:
       name: "Airthings WavePlus Basement Radon"
       unit_of_measurement: "pCi/L"
