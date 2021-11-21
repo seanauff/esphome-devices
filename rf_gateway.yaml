@@ -1,5 +1,5 @@
 substitutions:
-  name: rf_hub
+  name: rf_gateway
 
 esphome:
   name: ${name}
@@ -10,10 +10,42 @@ packages:
   wifi: !include common/wifi.yaml
   device_base: !include common/device_base.yaml
 
+# Status LED
+light:
+  - platform: status_led
+    id: onboard_led
+    pin: GPIO2
+
 remote_transmitter:
-  pin: GPIO32
+  pin: GPIO23
   carrier_duty_percent: 100%
   id: tx_315
+
+# Airthings BLE
+esp32_ble_tracker:
+
+ble_client:
+  - mac_address: !secret airthings_basement_mac
+    id: airthings_basement
+
+sensor:
+  - platform: airthings_wave_plus
+    ble_client_id: airthings_basement
+    update_interval: 5min # default
+    temperature:
+      name: "Airthings WavePlus Basement Temperature"
+    radon:
+      name: "Airthings WavePlus Basement Radon"
+    radon_long_term:
+      name: "Airthings WavePlus Basement Radon Long Term"
+    pressure:
+      name: "Airthings WavePlus Basement Pressure"
+    humidity:
+      name: "Airthings WavePlus Basement Humidity"
+    co2:
+      name: "Airthings WavePlus Basement CO2"
+    tvoc:
+      name: "Airthings WavePlus Basement VOC"
 
 # Individual switches
 switch:
