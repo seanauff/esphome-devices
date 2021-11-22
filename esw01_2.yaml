@@ -9,4 +9,4 @@ esphome:
 packages:
   wifi: !include common/wifi.yaml
   device_base: !include common/device_base.yaml
-  esw01_sensors: !include common/esw01_sensors.yaml
+  esw01_base: !include common/esw01_base.yaml
