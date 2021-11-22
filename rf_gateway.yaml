@@ -33,31 +33,31 @@ sensor:
     ble_client_id: airthings_basement
     update_interval: 5min # default
     temperature:
-      name: "Airthings WavePlus Basement Temperature"
+      name: "Airthings Basement Temperature"
       unit_of_measurement: "°F"
       accuracy_decimals: 1
       filters:
         - lambda: return x * (9.0/5.0) + 32.0; # convert to °F
     radon:
-      name: "Airthings WavePlus Basement Radon"
+      name: "Airthings Basement Radon 1 Day Avg"
       unit_of_measurement: "pCi/L"
       accuracy_decimals: 1
       filters:
         - lambda: return x / 37.0; # convert to pCi/L from Bq/m^3
     radon_long_term:
-      name: "Airthings WavePlus Basement Radon Long Term"
+      name: "Airthings Basement Radon LongTerm Avg"
       unit_of_measurement: "pCi/L"
       accuracy_decimals: 1
       filters:
         - lambda: return x / 37.0; # convert to pCi/L from Bq/m^3
     pressure:
-      name: "Airthings WavePlus Basement Pressure"
+      name: "Airthings Basement Pressure"
     humidity:
-      name: "Airthings WavePlus Basement Humidity"
+      name: "Airthings Basement Humidity"
     co2:
-      name: "Airthings WavePlus Basement CO2"
+      name: "Airthings Basement CO2"
     tvoc:
-      name: "Airthings WavePlus Basement VOC"
+      name: "Airthings Basement VOC"
 
 # Individual switches
 switch:
