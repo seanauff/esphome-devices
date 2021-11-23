@@ -1,0 +1,12 @@
+substitutions:
+  name: s31_1
+
+esphome:
+  name: ${name}
+  platform: ESP8266
+  board: esp01_1m
+
+packages:
+  wifi: !include common/wifi.yaml
+  device_base: !include common/device_base.yaml
+  s31_base: !include common/s31_base.yaml

@@ -1,0 +1,50 @@
+# https://www.esphome-devices.com/devices/Sonoff-S31
+
+logger:
+  baud_rate: 0 # (UART logging interferes with cse7766)
+
+uart:
+  rx_pin: RX
+  baud_rate: 4800
+
+status_led:
+  pin: GPIO13
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: True
+    id: button
+    on_press:
+      - switch.toggle: relay
+
+switch:
+  - platform: gpio
+    name: ${name} Relay
+    pin: GPIO12
+    id: relay
+    icon: "mdi:power-plug"
+    restore_mode: RESTORE_DEFAULT_ON
+
+sensor:
+  - platform: cse7766
+    update_interval: 10s
+    current:
+      name: ${name} Current
+      accuracy_decimals: 2
+    voltage:
+      name: "${name} Voltage"
+      accuracy_decimals: 1
+    power:
+      icon: "mdi:flash-circle"
+      name: ${name} Power
+      accuracy_decimals: 2
+      filters:
+        - lambda:
+            if (id(relay).state) {
+              return x;   
+            } else {
+              return 0;
+            }
