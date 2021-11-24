@@ -27,6 +27,25 @@ switch:
     id: relay
     icon: "mdi:power-plug"
     restore_mode: RESTORE_DEFAULT_ON
+    # on-plug action to power cycle the connected device
+  - platform: template
+    name: ${name} Restart Connected
+    id: restart_connected
+    disabled_by_default: True
+    icon: "mdi:restart-alert"
+    #optimistic: True
+    #assumed_state: True
+    turn_on_action:
+      then: 
+        - switch.template.publish:
+            id: restart_connected
+            state: ON
+        - switch.turn_off: relay
+        - delay: 10s
+        - switch.turn_on: relay
+        - switch.template.publish:
+            id: restart_connected
+            state: OFF
 
 sensor:
   - platform: cse7766
