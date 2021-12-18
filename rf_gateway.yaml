@@ -17,14 +17,12 @@ light:
     pin: GPIO2
 
 remote_transmitter:
-  pin: GPIO15
-  carrier_duty_percent: 100%
-  id: tx_315
-
-# remote_transmitter:
-#   pin: GPIO13
-#   carrier_duty_percent: 100%
-#   id: tx_433
+  - pin: GPIO15
+    carrier_duty_percent: 100%
+    id: tx_315
+  - pin: GPIO13
+    carrier_duty_percent: 100%
+    id: tx_433
 
 # Airthings BLE
 esp32_ble_tracker:
@@ -63,6 +61,18 @@ sensor:
       name: "Airthings Basement CO2"
     tvoc:
       name: "Airthings Basement VOC"
+
+button:
+  - platform: template
+    name: "Test 433 TX"
+    internal: True
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx_433
+          repeat:
+            times: 10
+            wait_time: 6ms
+          code: [500,-200,500,-200,500,-200,500,-200,500,-200,500,-200,500,-200,500,-200,500,-200,500,-200]
 
 # Individual switches
 switch:
