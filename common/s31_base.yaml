@@ -27,10 +27,6 @@ switch:
     id: relay
     icon: "mdi:power-plug"
     restore_mode: RESTORE_DEFAULT_ON
-  - platform: restart
-    name: "${name} Restart Node"
-    disabled_by_default: True
-    icon: "mdi:restart"
     # on-plug action to power cycle the connected device
   - platform: template
     name: ${name} Restart Connected

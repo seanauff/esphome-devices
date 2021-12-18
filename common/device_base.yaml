@@ -21,3 +21,9 @@ sensor:
 text_sensor:
   - platform: version
     name: "${name} ESPHome Version"
+
+button:
+  - platform: restart
+    name: "${name} Restart Node"
+    disabled_by_default: True
+    icon: "mdi:restart"
