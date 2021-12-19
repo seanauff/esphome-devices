@@ -12,11 +12,12 @@ status_led:
 
 binary_sensor:
   - platform: gpio
+    name: ${name} Button
+    internal: True
     pin:
       number: GPIO0
       mode: INPUT_PULLUP
       inverted: True
-    id: button
     on_press:
       - switch.toggle: relay
 
