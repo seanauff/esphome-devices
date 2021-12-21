@@ -1,5 +1,8 @@
 # https://www.esphome-devices.com/devices/Sonoff-S31
 
+packages:
+  esp8266vcc_adc: !include esp8266vcc_adc.yaml
+
 logger:
   baud_rate: 0 # (UART logging interferes with cse7766)
 
