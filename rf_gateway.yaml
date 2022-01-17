@@ -24,44 +24,6 @@ remote_transmitter:
     carrier_duty_percent: 100%
     id: tx_433
 
-# Airthings BLE
-esp32_ble_tracker:
-
-ble_client:
-  - mac_address: !secret airthings_basement_mac
-    id: airthings_basement
-
-sensor:
-  - platform: airthings_wave_plus
-    ble_client_id: airthings_basement
-    update_interval: 5min # default
-    temperature:
-      name: "Airthings Basement Temperature"
-      unit_of_measurement: "°F"
-      accuracy_decimals: 1
-      filters:
-        - lambda: return x * (9.0/5.0) + 32.0; # convert to °F
-    radon:
-      name: "Airthings Basement Radon 1 Day Avg"
-      unit_of_measurement: "pCi/L"
-      accuracy_decimals: 1
-      filters:
-        - lambda: return x / 37.0; # convert to pCi/L from Bq/m^3
-    radon_long_term:
-      name: "Airthings Basement Radon LongTerm Avg"
-      unit_of_measurement: "pCi/L"
-      accuracy_decimals: 1
-      filters:
-        - lambda: return x / 37.0; # convert to pCi/L from Bq/m^3
-    pressure:
-      name: "Airthings Basement Pressure"
-    humidity:
-      name: "Airthings Basement Humidity"
-    co2:
-      name: "Airthings Basement CO2"
-    tvoc:
-      name: "Airthings Basement VOC"
-
 button:
   - platform: template
     name: "Test 433 TX"
