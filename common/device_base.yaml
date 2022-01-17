@@ -11,7 +11,7 @@ ota:
 #mqtt:
 #  broker: !secret mqtt_broker
 
-web_server:
+#web_server:
 
 sensor:
   - platform: uptime
