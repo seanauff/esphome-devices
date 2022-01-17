@@ -50,11 +50,12 @@ sensor:
     current:
       name: ${name} Current
       accuracy_decimals: 2
+      icon: "mdi:current-ac"
     voltage:
       name: "${name} Voltage"
       accuracy_decimals: 1
     power:
-      icon: "mdi:flash-circle"
+      icon: "mdi:lightning-bolt-circle"
       name: ${name} Power
       accuracy_decimals: 2
       filters:
