@@ -1,0 +1,9 @@
+time:
+  - platform: homeassistant
+    on_time:
+      # Every day at 3am
+      - seconds: 0
+        minutes: 0
+        hours: 3
+        then:
+          - button.press: restart_button
