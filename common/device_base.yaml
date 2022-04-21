@@ -24,6 +24,7 @@ text_sensor:
 
 button:
   - platform: restart
+    id: restart_button
     name: "${name} Restart Node"
     disabled_by_default: True
     icon: "mdi:restart"
