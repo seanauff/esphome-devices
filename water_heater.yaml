@@ -1,0 +1,54 @@
+substitutions:
+  name: water_heater
+
+esphome:
+  name: ${name}
+  platform: ESP8266
+  board: d1_mini
+
+packages:
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  device_base: !include common/device_base.yaml
+  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+
+sensor:
+  - platform: pulse_counter
+    pin:
+      number: D5
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    name: "Water Heater Controller LED CPM"
+    id: "water_heater_controller_led_cpm"
+    unit_of_measurement: "cpm"
+    #icon: "mdi:radioactive"
+    count_mode:
+      rising_edge: DISABLE
+      falling_edge: INCREMENT
+    internal_filter: 50ms
+    update_interval: 30s # report every 30 s
+    accuracy_decimals: 0
+    filters:
+      - filter_out: 0.0 # don't send a 0.0 value (this occurs on boot)
+    on_value:
+      - script.execute: binary_sensor_update
+
+script:
+  - id: binary_sensor_update
+    mode: restart
+    then:
+      - binary_sensor.template.publish:
+          id: water_heater_status
+          state: ON
+      - delay: 1 min
+      - binary_sensor.template.publish:
+          id: water_heater_status
+          state: OFF
+
+binary_sensor:
+  - platform: template
+    device_class: power
+    name: "Water Heater Status"
+    id: "water_heater_status"
