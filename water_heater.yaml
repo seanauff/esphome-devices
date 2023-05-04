@@ -21,34 +21,61 @@ sensor:
         input: true
         pullup: true
     name: "Water Heater Controller LED CPM"
-    id: "water_heater_controller_led_cpm"
+    id: water_heater_controller_led_cpm
     unit_of_measurement: "cpm"
-    #icon: "mdi:radioactive"
+    icon: "mdi:led-on"
     count_mode:
       rising_edge: DISABLE
       falling_edge: INCREMENT
     internal_filter: 50ms
     update_interval: 30s # report every 30 s
     accuracy_decimals: 0
-    filters:
-      - filter_out: 0.0 # don't send a 0.0 value (this occurs on boot)
     on_value:
-      - script.execute: binary_sensor_update
-
-script:
-  - id: binary_sensor_update
-    mode: restart
-    then:
-      - binary_sensor.template.publish:
-          id: water_heater_status
-          state: ON
-      - delay: 1 min
-      - binary_sensor.template.publish:
-          id: water_heater_status
-          state: OFF
-
+      - if:
+          condition:
+            sensor.in_range:
+              id: water_heater_controller_led_cpm
+              below: 5
+          then:
+            - binary_sensor.template.publish:
+                id: water_heater_power
+                state: OFF
+            - binary_sensor.template.publish:
+                id: water_heater_error
+                state: ON
+      - if:
+          condition:
+            sensor.in_range:
+              id: water_heater_controller_led_cpm
+              above: 5
+              below: 35
+          then:
+            - binary_sensor.template.publish:
+                id: water_heater_power
+                state: ON
+            - binary_sensor.template.publish:
+                id: water_heater_error
+                state: OFF
+      - if:
+          condition:
+            sensor.in_range:
+              id: water_heater_controller_led_cpm
+              above: 35
+          then:
+            - binary_sensor.template.publish:
+                id: water_heater_power
+                state: ON
+            - binary_sensor.template.publish:
+                id: water_heater_error
+                state: ON
+            
 binary_sensor:
   - platform: template
     device_class: power
-    name: "Water Heater Status"
-    id: "water_heater_status"
+    name: "Water Heater Power"
+    id: "water_heater_power"
+
+  - platform: template
+    device_class: problem
+    name: "Water Heater Error"
+    id: "water_heater_error"
