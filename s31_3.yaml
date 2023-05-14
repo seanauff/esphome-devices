@@ -1,6 +1,12 @@
 substitutions:
   name: s31_3
 
+globals:
+   - id: connected_device_power_threshold
+     type: float
+     restore_value: no
+     initial_value: '10.0'
+     
 esphome:
   name: ${name}
   platform: ESP8266

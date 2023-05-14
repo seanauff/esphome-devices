@@ -23,6 +23,18 @@ binary_sensor:
       inverted: True
     on_press:
       - switch.toggle: relay
+  - platform: template
+    name: ${name} Connected Device Status
+    disabled_by_default: True
+    device_class: power
+    lambda: |-
+      if (id(cse7766_power).state > id(connected_device_power_threshold)) {
+        // Device is on.
+        return true;
+      } else {
+        // Device is off.
+        return false;
+      }
 
 button:
   # on-plug action to power cycle the connected device
@@ -57,6 +69,7 @@ sensor:
     power:
       icon: "mdi:lightning-bolt-circle"
       name: ${name} Power
+      id: cse7766_power
       accuracy_decimals: 2
       filters:
         - lambda:

@@ -1,5 +1,5 @@
 substitutions:
-  name: s31_5
+  name: s31_10
 
 globals:
    - id: connected_device_power_threshold
