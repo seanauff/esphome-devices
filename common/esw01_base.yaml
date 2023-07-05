@@ -8,12 +8,12 @@
 
 binary_sensor:
   - platform: gpio
+    name: ${name} Button
+    internal: True
     pin:
       number: GPIO14
       mode: INPUT_PULLUP
       inverted: True
-    # name: "${name}_button"
-    id: button
     on_press:
       then:
         - switch.toggle: switch_relay
