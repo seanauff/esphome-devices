@@ -1,0 +1,94 @@
+substitutions:
+  name: desk_lamp
+
+esphome:
+  name: ${name}
+  platform: ESP8266
+  board: d1_mini
+
+packages:
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  device_base: !include common/device_base.yaml
+  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+
+binary_sensor:
+  - platform: gpio
+    name: "${name} Encoder Button"
+    id: encoder_button
+    #internal: true
+    pin:
+      number: D3
+      mode: INPUT_PULLUP
+      inverted: true
+    filters:
+      - delayed_off: 10ms
+    on_press:
+      then:
+        -  light.toggle:
+             id: desk_lamp
+             #transition_length: 500ms
+    
+sensor:
+  - platform: rotary_encoder
+    name: "${name} Rotary Encoder"
+    id: encoder
+    #internal: true
+    pin_a:
+      number: D1
+      mode: INPUT_PULLUP
+      inverted: true
+    pin_b:
+      number: D2
+      mode: INPUT_PULLUP
+      inverted: true
+    min_value: 1
+    max_value: 100
+    resolution: 4
+    on_value:
+      if:
+        condition:
+          light.is_on: desk_lamp
+        then:
+          - light.turn_on:
+              id: desk_lamp
+              brightness: !lambda 'return id(encoder).state / 100.0;'
+
+output:
+  - platform: esp8266_pwm
+    pin:
+      number: D6
+      mode: OUTPUT_OPEN_DRAIN
+      inverted: true
+    frequency: 1000 Hz
+    id: light_output
+    min_power: 0.01
+    max_power: 1.00
+    zero_means_zero: true
+
+light:
+  - platform: monochromatic
+    name: ${name}
+    id: desk_lamp
+    output: light_output
+    effects:
+      - pulse:
+          name: "Pulse"
+          transition_length: 1.0s      # defaults to 1s
+          update_interval: 1.0s
+      - pulse:
+          name: "Flash"
+          transition_length: 0.0s      # defaults to 1s
+          update_interval: 1.0s
+      - random:
+          name: "Random"
+          transition_length: 3s
+          update_interval: 5s
+      - flicker:
+          name: "Flicker"
+          alpha: 95%
+          intensity: 5.0%
+    # on_state:
+    #   - sensor.rotary_encoder.set_value:
+    #       id: encoder
+    #       value: !lambda 'return id(desk_lamp).remote_values.get_brightness() * 100.0;'

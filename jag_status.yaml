@@ -1,0 +1,251 @@
+substitutions:
+  name: jag_status
+
+esphome:
+  name: ${name}
+  platform: ESP8266
+  board: d1_mini
+
+packages:
+  wifi: !include common/wifi.yaml
+  device_base: !include common/device_base.yaml
+  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+
+sensor:
+  - platform: homeassistant
+    id: battery_level
+    #entity_id: sensor.the_jag_battery
+    entity_id: input_number.test_number
+    on_value_range:
+      - above: 0
+        below: 16
+        then:
+          - light.turn_off: led0
+          - light.turn_off: led1
+          - light.turn_on:
+              id: led2
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_off: led3
+          - light.turn_off: led4
+          - light.turn_off: led5
+          - light.turn_off: led6
+      - above: 17
+        below: 33
+        then:
+          - light.turn_off: led0
+          - light.turn_off: led1
+          - light.turn_on:
+              id: led2
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led3
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_off: led4
+          - light.turn_off: led5
+          - light.turn_off: led6
+      - above: 34
+        below: 50
+        then:
+          - light.turn_off: led0
+          - light.turn_off: led1
+          - light.turn_on:
+              id: led2
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led3
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led4
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_off: led5
+          - light.turn_off: led6
+      - above: 51
+        below: 67
+        then:
+          - light.turn_off: led0
+          - light.turn_off: led1
+          - light.turn_on:
+              id: led2
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led3
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led4
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led5
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_off: led6
+      - above: 68
+        below: 84
+        then:
+          - light.turn_off: led0
+          - light.turn_off: led1
+          - light.turn_on:
+              id: led2
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led3
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led4
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led5
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led6
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+      - above: 85
+        below: 100
+        then:
+          - light.turn_off: led0
+          - light.turn_on:
+              id: led1
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led2
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led3
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led4
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led5
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+          - light.turn_on:
+              id: led6
+              brightness: 16%
+              red: 0%
+              green: 100%
+              blue: 0%
+
+light:
+  - platform: fastled_clockless
+    id: leds
+    chipset: WS2812B
+    pin: D4
+    num_leds: 7
+    rgb_order: GRB
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
+  - platform: partition
+    id: led0
+    segments:
+      - id: leds
+        from: 0
+        to: 0
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
+  - platform: partition
+    id: led1
+    segments:
+      - id: leds
+        from: 1
+        to: 1
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
+  - platform: partition
+    id: led2
+    segments:
+      - id: leds
+        from: 2
+        to: 2
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
+  - platform: partition
+    id: led3
+    segments:
+      - id: leds
+        from: 3
+        to: 3
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
+  - platform: partition
+    id: led4
+    segments:
+      - id: leds
+        from: 4
+        to: 4
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
+  - platform: partition
+    id: led5
+    segments:
+      - id: leds
+        from: 5
+        to: 5
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
+  - platform: partition
+    id: led6
+    segments:
+      - id: leds
+        from: 6
+        to: 6
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
+    
