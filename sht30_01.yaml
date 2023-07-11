@@ -10,9 +10,10 @@ packages:
   wifi: !include common/wifi.yaml
   device_base: !include common/device_base.yaml
   esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
-  mqtt: !include common/mqtt.yaml
 
 mqtt:
+  broker: !secret mqtt_broker
+  discovery: false
   on_message:
     - topic: esphome/${name}/ota_mode
       payload: 'ON'
