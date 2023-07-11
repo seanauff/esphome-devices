@@ -10,6 +10,18 @@ packages:
   wifi: !include common/wifi.yaml
   device_base: !include common/device_base.yaml
   esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+  mqtt: !include common/mqtt.yaml
+
+mqtt:
+  on_message:
+    - topic: esphome/${name}/ota_mode
+      payload: 'ON'
+      then:
+        - deep_sleep.prevent: deep_sleep_1
+    - topic: esphome/${name}/ota_mode
+      payload: 'OFF'
+      then:
+        - deep_sleep.allow: deep_sleep_1
 
 ota:
   on_begin:
@@ -36,8 +48,13 @@ sensor:
       unit_of_measurement: "°F"
       filters:
         - lambda: return x * (9.0/5.0) + 32.0; # convert to °F
+        - multiply: 0.9876
+        - offset: 0.397
     humidity:
       name: "${name} Humidity"
+      filters:
+        - multiply: 0.9686
+        - offset: 3.785
       on_value:
         then:
           - delay: 10s
