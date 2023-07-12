@@ -1,0 +1,13 @@
+substitutions:
+  name: sht30_08
+
+esphome:
+  name: ${name}
+  platform: ESP8266
+  board: d1_mini
+
+packages:
+  wifi: !include common/wifi.yaml
+  device_base: !include common/device_base.yaml
+  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+  sht30_base: !include common/sht30_base.yaml
