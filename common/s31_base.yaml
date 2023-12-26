@@ -78,3 +78,19 @@ sensor:
             } else {
               return 0;
             }
+
+  - platform: total_daily_energy
+    name: '${name} Total Daily Energy'
+    power_id: cse7766_power
+    unit_of_measurement: 'kWh'
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 3
+    filters:
+      # Multiplication factor from W to kW is 0.001
+      - multiply: 0.001
+
+# Enable time component to reset energy at midnight
+time:
+  - platform: homeassistant
+    id: homeassistant_time
