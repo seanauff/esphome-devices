@@ -1,0 +1,75 @@
+substitutions:
+  name: drying_oven
+
+esphome:
+  name: ${name}
+  platform: ESP8266
+  board: d1_mini
+  esp8266_restore_from_flash: false # dont restore state, so oven is always off after reboot
+
+packages:
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  device_base: !include common/device_base.yaml
+  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+
+dallas:
+ - pin: D3
+   update_interval: 0.2 s
+
+sensor:
+  - platform: dallas
+    address: 0xb6000005fd072928
+    resolution: 10 # 0.25 deg C
+    id: temperature_sensor
+    device_class: ""
+
+  - platform: pid
+    name: "Drying Oven Heater Power"
+    type: HEAT
+
+output:
+  - platform: esp8266_pwm
+    pin: D2
+    frequency: 10 Hz
+    id: heater
+    power_supply: fan
+
+  # - platform: gpio
+  #   pin: D1
+  #   id: fan
+
+# hacky way to turn on fan with heater
+power_supply:
+  - id: fan
+    pin: D1
+    enable_time: 10s
+    keep_on_time: 120s
+
+# button:
+#   - platform: template
+#     name: "PID Climate Autotune"
+#     on_press:
+#       - climate.pid.autotune: temp_controller
+
+climate:
+  - platform: pid
+    id: temp_controller
+    entity_category: ""
+    name: "Drying Oven Temperature"
+    sensor: temperature_sensor
+    default_target_temperature: 0°C
+    heat_output: heater
+    control_parameters: # okay tuning, still have some oscillations and offset (both <1 degC)
+      kp: 5
+      ki: 0.5
+      kd: 25
+      min_integral: -2
+      max_integral: 2
+      output_averaging_samples: 5
+    visual:
+      min_temperature: 10
+      max_temperature: 80
+      temperature_step:
+        target_temperature: 0.5
+        current_temperature: 0.1
