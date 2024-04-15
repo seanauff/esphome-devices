@@ -36,9 +36,8 @@ button:
             wait_time: 6ms
           code: [500,-200,500,-200,500,-200,500,-200,500,-200,500,-200,500,-200,500,-200,500,-200,500,-200]
 
-# Individual switches
 switch:
-# https://www.homedepot.com/p/Defiant-Wireless-Indoor-Outdoor-Remote-Control-with-3-RCV-YLT-42-3/301844754
+  # Defiant RF Outlet #1
   - platform: template
     name: "Defiant Outlet 1"
     optimistic: true
@@ -61,6 +60,7 @@ switch:
             wait_time: 6ms
           code: [609,-224,224,-609,609,-224,224,-609,609,-224,609,-224,609,-224,224,-609,224,-609,609,-224,609,-224,224,-609,224,-609,609,-224,609,-224,224,-609,224,-609,609,-224,609,-224,609,-224,609,-224,224,-609,224,-609,224,-609,224]
       - light.turn_off: onboard_led
+  # Defiant RF Outlet #2
   - platform: template
     name: "Defiant Outlet 2"
     optimistic: true
@@ -83,6 +83,7 @@ switch:
             wait_time: 6ms
           code: [609,-224,224,-609,609,-224,224,-609,609,-224,609,-224,609,-224,224,-609,224,-609,609,-224,609,-224,224,-609,224,-609,609,-224,609,-224,224,-609,224,-609,609,-224,609,-224,609,-224,224,-609,609,-224,609,-224,224,-609,224]
       - light.turn_off: onboard_led
+  # Defiant RF Outlet #3
   - platform: template
     name: "Defiant Outlet 3"
     optimistic: true
