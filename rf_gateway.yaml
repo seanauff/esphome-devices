@@ -11,8 +11,8 @@ packages:
   web_server: !include common/web_server.yaml
   device_base: !include common/device_base.yaml
 
-# Status LED
 light:
+  # Status LED
   - platform: status_led
     id: onboard_led
     pin: GPIO2
@@ -24,6 +24,9 @@ remote_transmitter:
   - pin: GPIO13
     carrier_duty_percent: 100% # RF uses a 100% carrier signal
     id: tx_433
+  - pin: GPIO12
+    carrier_duty_percent: 100% # RF uses a 100% carrier signal
+    id: tx_304
 
 button:
   - platform: template
@@ -110,6 +113,26 @@ switch:
           code: [609,-224,224,-609,609,-224,224,-609,609,-224,609,-224,609,-224,224,-609,224,-609,609,-224,609,-224,224,-609,224,-609,609,-224,609,-224,224,-609,224,-609,609,-224,609,-224,609,-224,224,-609,609,-224,224,-609,609,-224,224]
       - light.turn_off: onboard_led
 
+  # Emerson SW405 Light ?, ?, ?, ?, ? (Nursery)
+  - platform: template
+    name: "Nursery Light"
+    optimistic: true
+    assumed_state: true
+    turn_on_action:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx_304
+          repeat:
+            times: 4
+            wait_time: 10ms
+          code: [324,-328,628,-648,312,-340,620,-652,308,-656,308,-332,628,-648,312,-648,308,-652,308,-652,308,-648,308,-332,628]
+    turn_off_action:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx_304
+          repeat:
+            times: 4
+            wait_time: 10ms
+          code: [324,-328,628,-648,312,-340,620,-652,308,-656,308,-332,628,-648,312,-648,308,-652,308,-652,308,-648,308,-332,628]
+
 fan:
   # Fanimation RH787T UP,DOWN,DOWN,UP (Living Room)
   - platform: template
@@ -126,7 +149,7 @@ fan:
     on_turn_off:
       # send the stop command
       - remote_transmitter.transmit_raw:
-         transmitter_id: tx_315
+         transmitter_id: tx_304
          repeat:
            times: 15
            wait_time: 11.6ms
@@ -134,7 +157,7 @@ fan:
     on_direction_set:
       # send same code (reverse) either way, since the code just toggles
       - remote_transmitter.transmit_raw:
-          transmitter_id: tx_315
+          transmitter_id: tx_304
           repeat:
             times: 15
             wait_time: 11.6ms
@@ -142,7 +165,7 @@ fan:
     on_speed_set:
       # send the code according to desired speed
       - remote_transmitter.transmit_raw:
-          transmitter_id: tx_315
+          transmitter_id: tx_304
           repeat:
             times: 15
             wait_time: 11.6ms
@@ -179,14 +202,14 @@ fan:
           speed: !lambda return id(master_bedroom_fan).speed;
     on_turn_off:
       - remote_transmitter.transmit_raw:
-          transmitter_id: tx_315
+          transmitter_id: tx_304
           repeat:
             times: 10
             wait_time: 10ms
           code: [404,-376,772,-388,764,-388,764,-388,764,-388,760,-392,764,-388,764,-388,764,-388,764,-388,764,-388,764,-772,376,-776,380,-772,380,-772,380,-388,764,-388,764,-388,764,-388,764,-388,764,-388,764,-388,760,-392,764,-388,764]
     on_direction_set:
       - remote_transmitter.transmit_raw:
-          transmitter_id: tx_315
+          transmitter_id: tx_304
           repeat:
             times: 10
             wait_time: 10ms
@@ -200,7 +223,7 @@ fan:
             }
     on_preset_set:
       - remote_transmitter.transmit_raw:
-          transmitter_id: tx_315
+          transmitter_id: tx_304
           repeat:
             times: 10
             wait_time: 10ms
@@ -227,7 +250,7 @@ fan:
             }
     on_speed_set:
       - remote_transmitter.transmit_raw:
-          transmitter_id: tx_315
+          transmitter_id: tx_304
           repeat:
             times: 10
             wait_time: 10ms
@@ -274,14 +297,14 @@ fan:
           speed: !lambda return id(loft_fan).speed;
     on_turn_off:
       - remote_transmitter.transmit_raw:
-          transmitter_id: tx_315
+          transmitter_id: tx_304
           repeat:
             times: 10
             wait_time: 10ms
           code: [404,-380,780,-388,772,-392,772,-392,772,-392,772,-392,772,-392,772,-392,772,-392,776,-388,776,-388,776,-388,776,-776,388,-388,776,-776,384,-392,772,-392,772,-392,772,-392,772,-392,772,-392,776,-388,772,-392,772,-392,776]
     on_direction_set:
       - remote_transmitter.transmit_raw:
-          transmitter_id: tx_315
+          transmitter_id: tx_304
           repeat:
             times: 10
             wait_time: 10ms
@@ -295,7 +318,7 @@ fan:
             }
     on_preset_set:
       - remote_transmitter.transmit_raw:
-          transmitter_id: tx_315
+          transmitter_id: tx_304
           repeat:
             times: 10
             wait_time: 10ms
@@ -322,7 +345,7 @@ fan:
             }
     on_speed_set:
       - remote_transmitter.transmit_raw:
-          transmitter_id: tx_315
+          transmitter_id: tx_304
           repeat:
             times: 10
             wait_time: 10ms
@@ -344,5 +367,64 @@ fan:
             case 14: return {412,-376,780,-392,772,-392,772,-392,776,-388,776,-392,772,-388,776,-392,772,-392,772,-392,772,-392,776,-392,772,-776,388,-388,776,-776,384,-392,776,-388,776,-392,772,-392,772,-776,388,-776,388,-388,776,-776,388,-776,388};
             case 15: return {412,-380,776,-392,772,-392,772,-392,772,-392,776,-392,772,-388,776,-392,772,-392,772,-392,772,-392,772,-392,772,-780,384,-388,776,-780,384,-392,772,-392,772,-392,772,-392,772,-780,384,-780,384,-776,388,-388,776,-776,388};
             case 16: return {412,-376,780,-388,776,-392,772,-392,772,-392,772,-392,772,-392,776,-388,776,-388,776,-392,772,-392,772,-392,772,-780,384,-392,772,-780,384,-392,772,-392,772,-392,772,-392,776,-776,388,-776,384,-780,384,-780,388,-776,384};
+            default: return {};
+            }
+
+# Emerson SW405 ?, ?, ?, ?, ? (Nursery)
+  - platform: template
+    name: "Nursery Fan"
+    id: nursery_fan
+    has_direction: False
+    has_oscillating: False
+    speed_count: 4
+    preset_modes:
+      - Normal
+      - Natural Breeze
+      #- Sleep Timer 1 Hr
+      #- Sleep Timer 3 Hr
+      #- Sleep Timer 6 Hr
+      #- Home Away
+      #- Safe Exit
+    on_turn_on:
+      # set the last used speed
+      - fan.turn_on:
+          id: nursery_fan
+          speed: !lambda return id(nursery_fan).speed;
+    on_turn_off:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx_304
+          repeat:
+            times: 8
+            wait_time: 10ms
+          code: [312,-336,612,-656,296,-332,620,-652,292,-664,284,-348,600,-664,288,-664,284,-660,288,-668,284,-344,608,-664,280]
+    on_preset_set:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx_304
+          repeat:
+            times: 10
+            wait_time: 10ms
+          code: !lambda |-
+            if (x == "Normal") {
+              auto call = id(nursery_fan).turn_on();
+              call.set_speed(id(nursery_fan).speed);
+              call.perform();
+              return {};
+            } else if (x == "Natural Breeze") {
+              return {};
+            } else {
+              return {};
+            }
+    on_speed_set:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx_304
+          repeat:
+            times: 7
+            wait_time: 10ms
+          code: !lambda |-
+            switch (x) {
+            case 1: return {324,-328,640,-656,320,-328,640,-660,308,-660,308,-340,632,-660,308,-664,304,-340,632,-660,312,-656,312,-656,312};
+            case 2: return {332,-332,640,-664,312,-336,636,-660,316,-660,312,-340,636,-652,316,-340,632,-664,308,-664,312,-656,316,-656,316};
+            case 3: return {332,-340,632,-660,320,-336,636,-668,308,-660,316,-332,644,-656,316,-336,636,-336,640,-660,312,-660,312,-656,320};
+            case 4: return {304,-336,604,-664,284,-348,596,-664,284,-664,284,-352,596,-348,600,-660,284,-660,284,-664,284,-664,284,-660,284};
             default: return {};
             }
