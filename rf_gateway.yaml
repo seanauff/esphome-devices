@@ -132,7 +132,26 @@ switch:
             times: 4
             wait_time: 10ms
           code: [324,-328,628,-648,312,-340,620,-652,308,-656,308,-332,628,-648,312,-648,308,-652,308,-652,308,-648,308,-332,628]
-
+  
+  # Fanimation RH787T UP,DOWN,DOWN,UP (Living Room) Light
+  - platform: template
+    name: "Living Room Fan Light"
+    optimistic: true
+    assumed_state: true
+    turn_on_action:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx_304
+          repeat:
+            times: 15
+            wait_time: 11.6ms
+          code: [265,-390,600,-388,600,-725,265,-663,265,-376,600,-474,600,-718,265,-721,265,-728,265,-731,265,-716,265,-249,600]
+    turn_off_action:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx_304
+          repeat:
+            times: 15
+            wait_time: 11.6ms
+          code: [265,-390,600,-388,600,-725,265,-663,265,-376,600,-474,600,-718,265,-721,265,-728,265,-731,265,-716,265,-249,600]
 fan:
   # Fanimation RH787T UP,DOWN,DOWN,UP (Living Room)
   - platform: template
