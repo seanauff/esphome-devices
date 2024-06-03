@@ -1,7 +1,9 @@
----
+# https://github.com/ratgdo/esphome-ratgdo/blob/f9590d94ade2792f3dbba9c5ebe7f328a0b43981/static/v25iboard_secplusv1.yaml
+
 substitutions:
-  id_prefix: ratgdov25i
-  friendly_name: "ratgdov2.5i"
+  id_prefix: garage_door
+  name: garage_door
+  friendly_name: "Garage Door"
   uart_tx_pin: D1
   uart_rx_pin: D2
   input_obst_pin: D7
@@ -11,12 +13,10 @@ substitutions:
   dry_contact_close_pin: D6
   dry_contact_light_pin: D3
 
-web_server:
-
 esphome:
   name: ${id_prefix}
   friendly_name: ${friendly_name}
-  name_add_mac_suffix: true
+  name_add_mac_suffix: false
   project:
     name: ratgdo.esphome
     version: "2.5i"
@@ -33,20 +33,13 @@ packages:
     url: https://github.com/ratgdo/esphome-ratgdo
     files: [base_secplusv1.yaml]
     refresh: 1s
+  wifi: !include common/wifi.yaml
+  device_base: !include common/device_base.yaml
+  web_server: !include common/web_server.yaml
 
 # Sync time with Home Assistant.
 time:
   - platform: homeassistant
     id: homeassistant_time
 
-api:
-  id: api_server
-
-ota:
-
 improv_serial:
-
-wifi:
-  ap:
-
-logger:
