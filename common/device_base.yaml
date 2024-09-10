@@ -6,7 +6,8 @@ api:
   password: !secret hass_api_password
 
 ota:
-  password: !secret ota_password
+  - platform: esphome
+    password: !secret ota_password
 
 sensor:
   - platform: uptime
