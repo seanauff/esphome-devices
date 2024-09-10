@@ -1,0 +1,73 @@
+substitutions:
+  name: airthings_gateway
+
+esphome:
+  name: ${name}
+  platform: ESP32
+  board: esp32dev
+
+packages:
+  wifi: !include common/wifi.yaml
+  device_base: !include common/device_base.yaml
+
+  # Airthings BLE
+esp32_ble_tracker:
+
+ble_client:
+  - mac_address: !secret airthings_basement_mac
+    id: airthings_basement
+
+sensor:
+  - platform: airthings_wave_plus
+    ble_client_id: airthings_basement
+    update_interval: 5min # default
+    temperature:
+      name: "Airthings BLE Basement Temperature"
+      unit_of_measurement: "°F"
+      accuracy_decimals: 1
+      filters:
+        - lambda: return x * (9.0/5.0) + 32.0; # convert to °F
+
+    radon:
+      name: "Airthings BLE Basement Radon 1 Day Avg"
+      unit_of_measurement: "pCi/L"
+      accuracy_decimals: 1
+      filters:
+        - lambda: return x / 37.0; # convert to pCi/L from Bq/m^3
+
+    radon_long_term:
+      name: "Airthings BLE Basement Radon LongTerm Avg"
+      unit_of_measurement: "pCi/L"
+      accuracy_decimals: 1
+      filters:
+        - lambda: return x / 37.0; # convert to pCi/L from Bq/m^3
+    
+    pressure:
+      name: "Airthings BLE Basement Pressure"
+
+    humidity:
+      name: "Airthings BLE Basement Humidity"
+
+    co2:
+      name: "Airthings BLE Basement CO2"
+
+    tvoc:
+      name: "Airthings BLE Basement VOC"
+
+    illuminance:
+      name: "Airthings BLE Illuminance"
+
+    battery_voltage:
+      name: "Airthings BLE Battery Voltage"
+      id: bv
+
+  - platform: copy
+    source_id: bv
+    name: "Airthings BLE Battery Level"
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 0
+    filters:
+      - calibrate_linear:
+        - 2.2 -> 0
+        - 3.1 -> 100
