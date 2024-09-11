@@ -1,6 +1,13 @@
 # https://www.esphome-devices.com/devices/Sonoff-S31
 
+esphome:
+  name: ${name}
+  platform: ESP8266
+  board: esp12e
+
 packages:
+  wifi: !include wifi.yaml
+  device_base: !include device_base.yaml
   esp8266vcc_adc: !include esp8266vcc_adc.yaml
 
 logger:
@@ -11,11 +18,25 @@ uart:
   baud_rate: 4800
 
 status_led:
-  pin: GPIO13
+  pin: 
+    number: GPIO13
+    inverted: False # default on when no error for power indication
+
+number:
+  - platform: template
+    name: "${name} Connected Device Power Threshold"
+    id: connected_device_power_threshold
+    disabled_by_default: true
+    optimistic: true
+    min_value: 0
+    max_value: 2000
+    step: 1
+    restore_value: true
+    initial_value: 10
 
 binary_sensor:
   - platform: gpio
-    name: ${name} Button
+    name: "${name} Button"
     internal: True
     pin:
       number: GPIO0
@@ -24,11 +45,11 @@ binary_sensor:
     on_press:
       - switch.toggle: relay
   - platform: template
-    name: ${name} Connected Device Status
+    name: "${name} Connected Device Status"
     disabled_by_default: True
     device_class: power
     lambda: |-
-      if (id(cse7766_power).state > id(connected_device_power_threshold)) {
+      if (id(cse7766_power).state > id(connected_device_power_threshold).state) {
         // Device is on.
         return true;
       } else {
@@ -39,7 +60,7 @@ binary_sensor:
 button:
   # on-plug action to power cycle the connected device
   - platform: template
-    name: ${name} Restart Connected
+    name: "${name} Restart Connected"
     disabled_by_default: True
     icon: "mdi:restart-alert"
     on_press:
@@ -50,7 +71,7 @@ button:
 
 switch:
   - platform: gpio
-    name: ${name} Relay
+    name: "${name} Relay"
     pin: GPIO12
     id: relay
     icon: "mdi:power-plug"
@@ -58,29 +79,60 @@ switch:
 
 sensor:
   - platform: cse7766
-    update_interval: 10s
     current:
-      name: ${name} Current
+      name: "${name} Current"
       accuracy_decimals: 2
       icon: "mdi:current-ac"
+      filters:
+        - throttle_average: 10s
     voltage:
       name: "${name} Voltage"
       accuracy_decimals: 1
+      filters:
+        - throttle_average: 10s
     power:
-      icon: "mdi:lightning-bolt-circle"
       name: ${name} Power
       id: cse7766_power
+      icon: "mdi:lightning-bolt-circle"
       accuracy_decimals: 2
       filters:
-        - lambda:
+        - throttle_average: 10s
+        - lambda: |-
             if (id(relay).state) {
               return x;   
             } else {
               return 0;
             }
+    energy:
+      name: "${name} Energy"
+      state_class: total_increasing
+      device_class: energy
+      accuracy_decimals: 3
+      unit_of_measurement: 'kWh'
+      filters:
+        - throttle_average: 10s
+        # Multiplication factor from W to kW is 0.001
+        - multiply: 0.001
+    apparent_power:
+      name: "${name} Apparent Power"
+      icon: "mdi:lightning-bolt-circle"
+      accuracy_decimals: 2
+      filters:
+        - throttle_average: 10s
+        - lambda: |-
+            if (id(relay).state) {
+              return x;   
+            } else {
+              return 0;
+            }
+    power_factor:
+      name: "${name} Power Factor"
+      accuracy_decimals: 2
+      filters:
+        - throttle_average: 10s
 
   - platform: total_daily_energy
-    name: '${name} Total Daily Energy'
+    name: "${name} Total Daily Energy"
     power_id: cse7766_power
     unit_of_measurement: 'kWh'
     state_class: total_increasing

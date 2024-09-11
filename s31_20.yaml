@@ -1,5 +1,5 @@
 substitutions:
-  name: s31_11
+  name: s31_20
 
 packages:
   s31_base: !include common/s31_base.yaml
