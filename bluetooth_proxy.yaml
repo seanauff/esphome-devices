@@ -1,4 +1,6 @@
 # BT Proxy using WT32-ETH01 module
+# some hardware info: https://github.com/egnor/wt32-eth01?tab=readme-ov-file
+# esphome blueprint: https://github.com/esphome/bluetooth-proxies/blob/main/wt32/wt32-eth01.yaml
 substitutions:
   name: bluetooth_proxy_01
 
@@ -42,4 +44,3 @@ button:
   - platform: factory_reset
     id: factory_reset_btn
     name: ${name} Factory reset
-    
