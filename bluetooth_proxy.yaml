@@ -17,6 +17,7 @@ esp32:
 
 packages:
   device_base: !include common/device_base.yaml
+  chip_temp: !include common/chip_temp.yaml
 
 ethernet:
   type: LAN8720

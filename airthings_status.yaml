@@ -9,6 +9,7 @@ esphome:
 packages:
   wifi: !include common/wifi.yaml
   device_base: !include common/device_base.yaml
+  chip_temp: !include common/chip_temp.yaml
 
 script:
   - id: last_update_indicator

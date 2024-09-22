@@ -10,6 +10,7 @@ packages:
   wifi: !include common/wifi.yaml
   web_server: !include common/web_server.yaml
   device_base: !include common/device_base.yaml
+  chip_temp: !include common/chip_temp.yaml
 
 light:
   # Status LED
