@@ -2,8 +2,11 @@
 
 esphome:
   name: ${name}
-  platform: ESP8266
+
+esp8266:
   board: esp12e
+  restore_from_flash: false # default
+  early_pin_init: true # default
 
 packages:
   wifi: !include wifi.yaml
@@ -11,7 +14,7 @@ packages:
   esp8266vcc_adc: !include esp8266vcc_adc.yaml
 
 logger:
-  baud_rate: 0 # (UART logging interferes with cse7766)
+  baud_rate: 0 # (UART logging interferes with cse7766 sensor)
 
 uart:
   rx_pin: RX
@@ -20,7 +23,7 @@ uart:
 status_led:
   pin: 
     number: GPIO13
-    inverted: False # LED is Active low. Don't use invetered so that LED is default on when no error - for power indication
+    inverted: False # LED is Active low. Don't use inverted so that LED is default on when no error - for power indication
 
 number:
   - platform: template
