@@ -24,3 +24,7 @@ button:
     name: "${name} Restart Node"
     disabled_by_default: True
     icon: "mdi:restart"
+
+  - platform: safe_mode
+    name: "${name} Restart Node (Safe Mode)"
+    disabled_by_default: True
