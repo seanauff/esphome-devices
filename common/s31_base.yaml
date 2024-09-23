@@ -20,7 +20,7 @@ uart:
 status_led:
   pin: 
     number: GPIO13
-    inverted: False # default on when no error for power indication
+    inverted: False # LED is Active low. Don't use invetered so that LED is default on when no error - for power indication
 
 number:
   - platform: template
@@ -42,12 +42,23 @@ binary_sensor:
       number: GPIO0
       mode: INPUT_PULLUP
       inverted: True
+    filters:
+      delayed_off: 3s
     on_press:
-      - switch.toggle: relay
+      if:
+        condition:
+          switch.is_off: disable_button_switch
+        then:
+          - switch.toggle: relay
+        else:
+          - logger.log:
+              format: "Physical button pressed, but it is disabled via software setting."
+              level: INFO
+  
   - platform: template
     name: "${name} Connected Device Status"
     disabled_by_default: True
-    device_class: power
+    device_class: running
     lambda: |-
       if (id(cse7766_power).state > id(connected_device_power_threshold).state) {
         // Device is on.
@@ -76,6 +87,13 @@ switch:
     id: relay
     icon: "mdi:power-plug"
     restore_mode: RESTORE_DEFAULT_ON
+
+  - platform: template
+    name: "${name} Disable Button"
+    id: disable_button_switch
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    disabled_by_default: True
 
 sensor:
   - platform: cse7766
