@@ -1,6 +1,7 @@
 mqtt:
   broker: !secret mqtt_broker
   discovery: false
+  topic_prefix: null # don't publish mqtt messages
   on_message:
     - topic: esphome/${name}/ota_mode
       payload: 'ON'
