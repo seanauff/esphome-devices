@@ -5,7 +5,7 @@ esphome:
 
 esp8266:
   board: esp12e
-  restore_from_flash: false # default
+  restore_from_flash: true # save some values to flash
   early_pin_init: true # default
 
 packages:
@@ -37,6 +37,17 @@ number:
     restore_value: true
     initial_value: 10
 
+  - platform: template
+    name: "${name} Button Lockout Time"
+    id: button_lockout_time
+    disabled_by_default: true
+    optimistic: true
+    min_value: 0
+    max_value: 5000
+    step: 100
+    restore_value: true
+    initial_value: 100
+
 binary_sensor:
   - platform: gpio
     name: "${name} Button"
@@ -46,7 +57,7 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: True
     filters:
-      delayed_off: 3s
+      delayed_off: !lambda return id(button_lockout_time).state;
     on_press:
       if:
         condition:
