@@ -1,8 +1,11 @@
 substitutions:
-  name: brew_sign
+  name: brew-sign
+  id_prefix: brew_sign
+  friendly_name: "Brew Sign"
 
 esphome:
   name: ${name}
+  friendly_name: ${friendly_name}
   platform: ESP8266
   board: esp01_1m
 
@@ -13,8 +16,9 @@ packages:
 # Example configuration entry
 light:
   - platform: monochromatic
-    name: "Brew Sign"
-    output: light_output
+    name: ${friendly_name}
+    id: ${id_prefix}
+    output: ${id_prefix}_light_output
     effects:
       - pulse:
           name: "Pulse"
@@ -37,7 +41,7 @@ output:
   - platform: esp8266_pwm
     pin: GPIO2
     frequency: 1000 Hz
-    id: light_output
+    id: ${id_prefix}_light_output
     min_power: 0.005
     max_power: 1.00
     zero_means_zero: true
