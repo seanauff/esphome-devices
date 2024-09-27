@@ -2,10 +2,13 @@
 # some hardware info: https://github.com/egnor/wt32-eth01?tab=readme-ov-file
 # esphome blueprint: https://github.com/esphome/bluetooth-proxies/blob/main/wt32/wt32-eth01.yaml
 substitutions:
-  name: bluetooth_proxy_01
+  name: bluetooth-proxy-01
+  id_prefix: bluetooth_proxy_01
+  friendly_name: "Bluetooth Proxy 01"
 
 esphome:
   name: ${name}
+  friendly_name: ${friendly_name}
   min_version: 2024.6.0
   platformio_options:
     board_build.flash_mode: dio
@@ -36,12 +39,3 @@ esp32_ble_tracker:
 
 bluetooth_proxy:
   active: true
-
-button:
-  - platform: safe_mode
-    id: button_safe_mode
-    name: ${name} Safe Mode Boot
-
-  - platform: factory_reset
-    id: factory_reset_btn
-    name: ${name} Factory reset
