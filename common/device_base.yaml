@@ -11,20 +11,22 @@ ota:
 
 sensor:
   - platform: uptime
-    name: "${name} Uptime"
-    id: "${name}_uptime"
+    name: "Uptime"
+    id: ${id_prefix}_uptime
 
 text_sensor:
   - platform: version
-    name: "${name} ESPHome Version"
+    name: "ESPHome Version"
+    id: ${id_prefix}_esphome_version
 
 button:
   - platform: restart
-    id: restart_button
-    name: "${name} Restart Node"
+    name: "Restart Node"
+    id: ${id_prefix}_restart_button
     disabled_by_default: True
     icon: "mdi:restart"
 
   - platform: safe_mode
-    name: "${name} Restart Node (Safe Mode)"
+    name: "Restart Node (Safe Mode)"
+    id: ${id_prefix}_restart_safe_mode
     disabled_by_default: True

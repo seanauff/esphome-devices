@@ -3,7 +3,8 @@
 # integrated temperature sensor of the ESP32, RP2040 and BK72XX chip.
 sensor:
   - platform: internal_temperature
-    name: "${name} Chip Temperature"
+    name: "Chip Temperature"
+    id: ${id_prefix}_chip_temperature
     update_interval: 60s
     accuracy_decimals: 1
     

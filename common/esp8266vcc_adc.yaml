@@ -1,7 +1,8 @@
 sensor:
   - platform: adc
     pin: VCC
-    name: ${name} VCC
+    name: "Chip VCC"
+    id: ${id_prefix}_chip_vcc
     icon: "mdi:current-dc"
     device_class: "voltage"
     unit_of_measurement: "V"
