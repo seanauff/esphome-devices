@@ -33,14 +33,16 @@ sensor:
   - platform: sht3xd
     address: 0x45
     temperature:
-      name: "${name} Temperature"
+      name: "Temperature"
+      id: ${id_prefix}_temperature
       unit_of_measurement: "°F"
       filters:
         - lambda: return x * (9.0/5.0) + 32.0; # convert to °F
         - multiply: 0.9876
         - offset: 0.397
     humidity:
-      name: "${name} Humidity"
+      name: "Humidity"
+      id: ${id_prefix}_humidity
       filters:
         - multiply: 0.9686
         - offset: 3.785
@@ -50,3 +52,4 @@ sensor:
           - deep_sleep.enter:
               id: deep_sleep_1
               sleep_duration: 5min
+              

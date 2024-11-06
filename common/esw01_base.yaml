@@ -6,71 +6,81 @@
 # D6 GPIO12 | HLW8012/CF1 | cf1_pin
 # D7 GPIO13 | HLW8012/CF  | cf_pin
 
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+esp8266:
+  board: esp12e
+
+packages:
+  wifi: !include wifi.yaml
+  device_base: !include device_base.yaml
+
 binary_sensor:
   - platform: gpio
-    name: ${name} Button
-    internal: True
+    id: ${id_prefix}_button
     pin:
       number: GPIO14
       mode: INPUT_PULLUP
       inverted: True
     on_press:
       then:
-        - switch.toggle: switch_relay
+        - switch.toggle: ${id_prefix}_relay
 
 status_led:
   pin:
     number: GPIO5
 
 output:
-- platform: gpio
-  id: relay
-  pin: GPIO4
-- platform: gpio
-  id: led_yellow
-  pin: GPIO16
+  - platform: gpio
+    id: ${id_prefix}_led_yellow
+    pin: GPIO16
 
 switch:
-  - platform: output
-    name: "${name}_Relay"
-    id: switch_relay
-    output: relay
+  - platform: gpio
+    name: "Relay"
+    id: ${id_prefix}_relay
+    pin: GPIO4
+    icon: "mdi:power-plug"
+    restore_mode: RESTORE_DEFAULT_ON
     on_turn_on:
-      - output.turn_on: led_yellow
+      - output.turn_on: ${id_prefix}_led_yellow
     on_turn_off:
-      - output.turn_off: led_yellow
+      - output.turn_off: ${id_prefix}_led_yellow
 
 sensor:
   - platform: hlw8012
-    sel_pin: GPIO16
+    sel_pin: GPIO15
     cf_pin: GPIO13
     cf1_pin: GPIO12
     # current_resistor: 0.002
     # voltage_divider: 2351
     # current:
-    #   name: "${name} Current"
+    #   name: "Current"
+    #   id: ${id_prefix}_current
     #   unit_of_measurement: A
     #   accuracy_decimals: 3
     voltage:
-      name: "${name} Voltage"
-      id: hlw8012_voltage
+      name: "Voltage"
+      id: ${id_prefix}_voltage
       unit_of_measurement: V
       accuracy_decimals: 1
     power:
-      name: "${name} Power"
-      id: hlw8012_power
+      name: "Power"
+      id: ${id_prefix}_power
       unit_of_measurement: W
       accuracy_decimals: 1
       on_value:
         - sensor.template.publish:
-            id: hlw8012_current_calculated
-            state: !lambda 'return id(hlw8012_power).state / id(hlw8012_voltage).state;'
+            id: ${id_prefix}_current
+            state: !lambda return id(${id_prefix}_power).state / id(${id_prefix}_voltage).state;
     update_interval: 10s
     initial_mode: VOLTAGE
     change_mode_every: 4294967295 # basically never
   - platform: template
-    id: hlw8012_current_calculated
-    name: "${name} Current"
+    name: "Current"
+    id: ${id_prefix}_current
     unit_of_measurement: A
     accuracy_decimals: 2
     

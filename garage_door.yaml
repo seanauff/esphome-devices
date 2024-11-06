@@ -2,7 +2,7 @@
 
 substitutions:
   id_prefix: garage_door
-  name: garage_door
+  name: garage-door
   friendly_name: "Garage Door"
   uart_tx_pin: D1
   uart_rx_pin: D2
@@ -14,7 +14,7 @@ substitutions:
   dry_contact_light_pin: D3
 
 esphome:
-  name: ${id_prefix}
+  name: ${name}
   friendly_name: ${friendly_name}
   name_add_mac_suffix: false
   project:

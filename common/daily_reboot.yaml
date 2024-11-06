@@ -6,4 +6,4 @@ time:
         minutes: 0
         hours: 3
         then:
-          - button.press: restart_button
+          - button.press: ${id_prefix}_restart_button
