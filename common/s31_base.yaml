@@ -2,6 +2,7 @@
 
 esphome:
   name: ${name}
+  friendly_name: ${friendly_name}
 
 esp8266:
   board: esp12e
@@ -27,8 +28,8 @@ status_led:
 
 number:
   - platform: template
-    name: "${name} Connected Device Power Threshold"
-    id: connected_device_power_threshold
+    name: "Connected Device Power Threshold"
+    id: ${id_prefix}_connected_device_power_threshold
     disabled_by_default: true
     optimistic: true
     min_value: 0
@@ -38,8 +39,8 @@ number:
     initial_value: 10
 
   - platform: template
-    name: "${name} Button Lockout Time"
-    id: button_lockout_time
+    name: "Button Lockout Time"
+    id: ${id_prefix}_button_lockout_time
     disabled_by_default: true
     optimistic: true
     min_value: 0
@@ -50,31 +51,33 @@ number:
 
 binary_sensor:
   - platform: gpio
-    name: "${name} Button"
+    name: "Button"
+    id: ${id_prefix}_button
     internal: True
     pin:
       number: GPIO0
       mode: INPUT_PULLUP
       inverted: True
     filters:
-      delayed_off: !lambda return id(button_lockout_time).state;
+      delayed_off: !lambda return id(${id_prefix}_button_lockout_time).state;
     on_press:
       if:
         condition:
-          switch.is_off: disable_button_switch
+          switch.is_off: ${id_prefix}_disable_button
         then:
-          - switch.toggle: relay
+          - switch.toggle: ${id_prefix}_relay
         else:
           - logger.log:
               format: "Physical button pressed, but it is disabled via software setting."
               level: INFO
   
   - platform: template
-    name: "${name} Connected Device Status"
+    name: "Connected Device Status"
+    id: ${id_prefix}_connected_device_status
     disabled_by_default: True
     device_class: running
     lambda: |-
-      if (id(cse7766_power).state > id(connected_device_power_threshold).state) {
+      if (id(${id_prefix}_power).state > id(${id_prefix}_connected_device_power_threshold).state) {
         // Device is on.
         return true;
       } else {
@@ -85,26 +88,27 @@ binary_sensor:
 button:
   # on-plug action to power cycle the connected device
   - platform: template
-    name: "${name} Restart Connected"
+    name: "Restart Connected"
+    id: ${id_prefix}_restart_connected
     disabled_by_default: True
     icon: "mdi:restart-alert"
     on_press:
       then: 
-        - switch.turn_off: relay
+        - switch.turn_off: ${id_prefix}_relay
         - delay: 5s
-        - switch.turn_on: relay
+        - switch.turn_on: ${id_prefix}_relay
 
 switch:
   - platform: gpio
-    name: "${name} Relay"
+    name: "Relay"
+    id: ${id_prefix}_relay
     pin: GPIO12
-    id: relay
     icon: "mdi:power-plug"
     restore_mode: RESTORE_DEFAULT_ON
 
   - platform: template
-    name: "${name} Disable Button"
-    id: disable_button_switch
+    name: "Disable Button"
+    id: ${id_prefix}_disable_button
     optimistic: true
     restore_mode: RESTORE_DEFAULT_OFF
     disabled_by_default: True
@@ -112,31 +116,34 @@ switch:
 sensor:
   - platform: cse7766
     current:
-      name: "${name} Current"
+      name: "Current"
+      id: ${id_prefix}_current
       accuracy_decimals: 2
       icon: "mdi:current-ac"
       filters:
         - throttle_average: 10s
     voltage:
-      name: "${name} Voltage"
+      name: "Voltage"
+      id: ${id_prefix}_voltage
       accuracy_decimals: 1
       filters:
         - throttle_average: 10s
     power:
-      name: ${name} Power
-      id: cse7766_power
+      name: "Power"
+      id: ${id_prefix}_power
       icon: "mdi:lightning-bolt-circle"
       accuracy_decimals: 2
       filters:
         - throttle_average: 10s
         - lambda: |-
-            if (id(relay).state) {
+            if (id(${id_prefix}_relay).state) {
               return x;   
             } else {
               return 0;
             }
     energy:
-      name: "${name} Energy"
+      name: "Energy"
+      id: ${id_prefix}_energy
       state_class: total_increasing
       device_class: energy
       accuracy_decimals: 3
@@ -146,26 +153,29 @@ sensor:
         # Multiplication factor from W to kW is 0.001
         - multiply: 0.001
     apparent_power:
-      name: "${name} Apparent Power"
+      name: "Apparent Power"
+      id: ${id_prefix}_apparent_power
       icon: "mdi:lightning-bolt-circle"
       accuracy_decimals: 2
       filters:
         - throttle_average: 10s
         - lambda: |-
-            if (id(relay).state) {
+            if (id(${id_prefix}_relay).state) {
               return x;   
             } else {
               return 0;
             }
     power_factor:
-      name: "${name} Power Factor"
+      name: "Power Factor"
+      id: ${id_prefix}_power_factor
       accuracy_decimals: 2
       filters:
         - throttle_average: 10s
 
   - platform: total_daily_energy
-    name: "${name} Total Daily Energy"
-    power_id: cse7766_power
+    name: "Total Daily Energy"
+    id: ${id_prefix}_total_daily_energy
+    power_id: ${id_prefix}_power
     unit_of_measurement: 'kWh'
     state_class: total_increasing
     device_class: energy
