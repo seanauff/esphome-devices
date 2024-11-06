@@ -1,5 +1,7 @@
 substitutions:
-  name: upstairs_aq
+  name: upstairs-aq
+  id_prefix: upstairs_aq
+  friendly_name: "Upstairs Air Quality"
 
 globals:
 # to convert CPM to uSv/hr (data from here: https://cdn.sparkfun.com/assets/learn_tutorials/1/4/3/GeigerCounterType5_Certification_VSL_cert_3320408.pdf)
@@ -10,7 +12,9 @@ globals:
 
 esphome:
   name: ${name}
-  platform: ESP8266
+  friendly_name: ${friendly_name}
+
+esp8266:
   board: nodemcuv2
 
 packages:
@@ -30,7 +34,7 @@ output:
       number: D4
       inverted: true
       mode: OUTPUT
-    id: gpio_d4
+    id: ${id_prefix}_gpio_d4
 
 sensor:
 
@@ -42,8 +46,8 @@ sensor:
       mode:
         input: true
         pullup: true
-    name: "${name} Radiation CPM"
-    id: "${name}_radiation_cpm"
+    name: "Radiation CPM"
+    id: ${id_prefix}_radiation_cpm
     unit_of_measurement: "cpm"
     icon: "mdi:radioactive"
     count_mode:
@@ -69,8 +73,8 @@ sensor:
       mode:
         input: true
         pullup: true
-    name: "${name} Radiation CPM meter"
-    id: "${name}_radiation_cpm_meter"
+    name: "Radiation CPM meter"
+    id: ${id_prefix}_radiation_cpm_meter
     unit_of_measurement: "cpm"
     icon: "mdi:radioactive"
     internal_filter: 200us
@@ -84,44 +88,46 @@ sensor:
       #     send_first_at: 10
     on_raw_value: # blink onboard LED whenever a pulse is detected
       then:
-        - output.turn_on: gpio_d4
+        - output.turn_on: ${id_prefix}_gpio_d4
         - delay: 50ms
-        - output.turn_off: gpio_d4
+        - output.turn_off: ${id_prefix}_gpio_d4
     total:
       internal: false # do expose this, it updates on every detected pulse
-      name: "${name} Total Radiation Counts"
-      id: "${name}_total_radiation_counts"
+      name: "Total Radiation Counts"
+      id: ${id_prefix}_total_radiation_counts
       unit_of_measurement: "counts"
       icon: "mdi:radioactive"
       accuracy_decimals: 0
 
 # Calculate dose rate (µS/hr) from CPM
   - platform: template
-    name: "${name} Radiation Dose Rate"
+    name: "Radiation Dose Rate"
+    id: ${id_prefix}_radiation_dose_rate
     unit_of_measurement: "µS/hr"
     icon: "mdi:radioactive"
     accuracy_decimals: 2
     lambda: |-
-      return id(${name}_radiation_cpm).state * id(conv_factor);
+      return id(${id_prefix}_radiation_cpm).state * id(conv_factor);
 
 # Calculate long term CPM (since boot) from total counts and uptime
   - platform: template
-    name: "${name} Long Term Radiation CPM"
-    id: "${name}_long_term_radiation_cpm"
+    name: "Long Term Radiation CPM"
+    id: ${id_prefix}_long_term_radiation_cpm
     unit_of_measurement: "cpm"
     icon: "mdi:radioactive"
     accuracy_decimals: 2
     lambda: |-
-      return id(${name}_total_radiation_counts).state / id(${name}_uptime).state * 60.0;
+      return id(${id_prefix}_total_radiation_counts).state / id(${id_prefix}_uptime).state * 60.0;
 
 # Calculate long term dose rate (since boot) from previous template sensor
   - platform: template
-    name: "${name} Long Term Radiation Dose Rate"
+    name: "Long Term Radiation Dose Rate"
+    id: ${id_prefix}_long_term_radiation_dose_rate
     unit_of_measurement: "µS/hr"
     icon: "mdi:radioactive"
     accuracy_decimals: 3
     lambda: |-
-      return id(${name}_long_term_radiation_cpm).state * id(conv_factor);
+      return id(${id_prefix}_long_term_radiation_cpm).state * id(conv_factor);
 
 # Noise pulse input
   - platform: pulse_counter
@@ -130,8 +136,8 @@ sensor:
       mode:
         input: true
         pullup: true
-    name: "${name} Noise CPM"
-    id: "${name}_noise_cpm"
+    name: "Noise CPM"
+    id: ${id_prefix}_noise_cpm
     unit_of_measurement: "cpm"
     icon: "mdi:bell-alert"
     count_mode:
@@ -141,7 +147,8 @@ sensor:
     update_interval: 60s
     accuracy_decimals: 1
     total:
-      name: "${name} Total Noise Counts"
+      name: "Total Noise Counts"
+      id: ${id_prefix}_total_noise_counts
       unit_of_measurement: "counts"
       icon: "mdi:bell-alert"
       accuracy_decimals: 0
@@ -149,15 +156,16 @@ sensor:
 ##### SCD30 CO2 sensor #####
   - platform: scd30
     co2:
-      name: "${name} NDIR CO2"
+      name: "NDIR CO2"
+      id: ${id_prefix}_ndir_co2
       accuracy_decimals: 0
     temperature:
-      name: "${name} Temperature"
-      id: "${name}_temperature"
+      name: "Temperature"
+      id: ${id_prefix}_temperature
       accuracy_decimals: 1
     humidity:
-      name: "${name} Humidity"
-      id: "${name}_humidity"
+      name: "Humidity"
+      id: ${id_prefix}_humidity
       accuracy_decimals: 0
     #temperature_offset: 1.5 °C
     automatic_self_calibration: true
@@ -169,42 +177,45 @@ sensor:
 ##### Particulate Matter Sensor - SPS30 #####
   - platform: sps30
     pm_1_0:
-      name: "${name} PM <1µm Mass concentration"
-      id: "${name}_PM_1_0"
+      name: "PM <1µm Mass concentration"
+      id: ${id_prefix}_pm_1_0
     pm_2_5:
-      name: "${name} PM <2.5µm Mass concentration"
-      id: "${name}_PM_2_5"
+      name: "PM <2.5µm Mass concentration"
+      id: ${id_prefix}_pm_2_5
     pm_4_0:
-      name: "${name} PM <4µm Mass concentration"
-      id: "${name}_PM_4_0"
+      name: "PM <4µm Mass concentration"
+      id: ${id_prefix}_pm_4_0
     pm_10_0:
-      name: "${name} PM <10µm Mass concentration"
-      id: "${name}_PM_10_0"
+      name: "PM <10µm Mass concentration"
+      id: ${id_prefix}_pm_10_0
     pmc_0_5:
-      name: "${name} PM <0.5µm Number concentration"
-      id: "${name}_PMC_0_5"
+      name: "PM <0.5µm Number concentration"
+      id: ${id_prefix}_pmc_0_5
     pmc_1_0:
-      name: "${name} PM <1µm Number concentration"
-      id: "${name}_PMC_1_0"
+      name: "PM <1µm Number concentration"
+      id: ${id_prefix}_pmc_1_0
     pmc_2_5:
-      name: "${name} PM <2.5µm Number concentration"
-      id: "${name}_PMC_2_5"
+      name: "PM <2.5µm Number concentration"
+      id: ${id_prefix}_pmc_2_5
     pmc_4_0:
-      name: "${name} PM <4µm Number concentration"
-      id: "${name}_PMC_4_0"
+      name: "PM <4µm Number concentration"
+      id: ${id_prefix}_pmc_4_0
     pmc_10_0:
-      name: "${name} PM <10µm Number concentration"
-      id: "${name}_PMC_10_0"
+      name: "PM <10µm Number concentration"
+      id: ${id_prefix}_pmc_10_0
     address: 0x69
     update_interval: 60s
 
 ##### CCS811 TVOC sensor #####
   - platform: ccs811
     eco2:
-      name: "${name} eCO2"
+      name: "eCO2"
+      id: ${id_prefix}_eco2
     tvoc:
-      name: "${name} TVOC"
+      name: "TVOC"
+      id: ${id_prefix}_tvoc
     address: 0x5A
-    temperature: "${name}_temperature"
-    humidity: "${name}_humidity"
+    temperature: ${id_prefix}_temperature
+    humidity: ${id_prefix}_humidity
     update_interval: 60s
+    
