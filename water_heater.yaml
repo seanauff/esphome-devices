@@ -1,9 +1,13 @@
 substitutions:
-  name: water_heater
+  name: water-heater
+  id_prefix: water_heater
+  friendly_name: "Water Heater"
 
 esphome:
   name: ${name}
-  platform: ESP8266
+  friendly_name: ${friendly_name}
+
+esp8266:
   board: d1_mini
 
 packages:
@@ -20,8 +24,8 @@ sensor:
       mode:
         input: true
         pullup: true
-    name: "Water Heater Controller LED CPM"
-    id: water_heater_controller_led_cpm
+    name: "LED CPM"
+    id: ${id_prefix}_led_cpm
     unit_of_measurement: "cpm"
     icon: "mdi:led-on"
     count_mode:
@@ -34,48 +38,48 @@ sensor:
       - if:
           condition:
             sensor.in_range:
-              id: water_heater_controller_led_cpm
+              id: ${id_prefix}_led_cpm
               below: 5
           then:
             - binary_sensor.template.publish:
-                id: water_heater_power
+                id: ${id_prefix}_power
                 state: OFF
             - binary_sensor.template.publish:
-                id: water_heater_error
+                id: ${id_prefix}_error
                 state: ON
       - if:
           condition:
             sensor.in_range:
-              id: water_heater_controller_led_cpm
+              id: ${id_prefix}_led_cpm
               above: 5
               below: 35
           then:
             - binary_sensor.template.publish:
-                id: water_heater_power
+                id: ${id_prefix}_power
                 state: ON
             - binary_sensor.template.publish:
-                id: water_heater_error
+                id: ${id_prefix}_error
                 state: OFF
       - if:
           condition:
             sensor.in_range:
-              id: water_heater_controller_led_cpm
+              id: ${id_prefix}_led_cpm
               above: 35
           then:
             - binary_sensor.template.publish:
-                id: water_heater_power
+                id: ${id_prefix}_power
                 state: ON
             - binary_sensor.template.publish:
-                id: water_heater_error
+                id: ${id_prefix}_error
                 state: ON
             
 binary_sensor:
   - platform: template
     device_class: power
-    name: "Water Heater Power"
-    id: "water_heater_power"
+    name: "Power"
+    id: ${id_prefix}_power
 
   - platform: template
     device_class: problem
-    name: "Water Heater Error"
-    id: "water_heater_error"
+    name: "Error"
+    id: ${id_prefix}_error
