@@ -1,6 +1,7 @@
 substitutions:
-  name: s31_15
+  name: s31-15
+  id_prefix: s31_15
+  friendly_name: "S31 15"
 
 packages:
   s31_base: !include common/s31_base.yaml
-  
