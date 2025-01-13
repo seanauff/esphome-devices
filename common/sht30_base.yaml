@@ -6,24 +6,25 @@ mqtt:
     - topic: esphome/${name}/ota_mode
       payload: 'ON'
       then:
-        - deep_sleep.prevent: deep_sleep_1
+        - deep_sleep.prevent: ${id_prefix}_deep_sleep
     - topic: esphome/${name}/ota_mode
       payload: 'OFF'
       then:
-        - deep_sleep.allow: deep_sleep_1
+        - deep_sleep.allow: ${id_prefix}_deep_sleep
 
 ota:
-  on_begin:
-    then:
-      - deep_sleep.prevent: deep_sleep_1
-  on_end:
-    then:
-      - deep_sleep.allow: deep_sleep_1
+  - id: !extend ${id_prefix}_ota
+    on_begin:
+      then:
+        - deep_sleep.prevent: ${id_prefix}_deep_sleep
+    on_end:
+      then:
+        - deep_sleep.allow: ${id_prefix}_deep_sleep
 
 deep_sleep:
   run_duration: 60s
   sleep_duration: 5min
-  id: deep_sleep_1
+  id: ${id_prefix}_deep_sleep
 
 i2c:
   sda: GPIO4
@@ -50,6 +51,6 @@ sensor:
         then:
           - delay: 10s
           - deep_sleep.enter:
-              id: deep_sleep_1
+              id: ${id_prefix}_deep_sleep
               sleep_duration: 5min
               

@@ -1,7 +1,7 @@
 substitutions:
-  name: sht30-10
-  id_prefix: sht30_10
-  friendly_name: "SHT30 10"
+  name: sht30-11
+  id_prefix: sht30_11
+  friendly_name: "SHT30 11"
 
 esphome:
   name: ${name}
