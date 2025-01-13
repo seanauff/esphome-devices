@@ -7,19 +7,18 @@ esphome:
   name: ${name}
   friendly_name: ${friendly_name}
 
-esp8266:
-  board: d1_mini
-  restore_from_flash: false # dont restore state, so oven is always off after reboot
+esp32:
+  board: lolin_c3_mini
 
 packages:
   wifi: !include common/wifi.yaml
   web_server: !include common/web_server.yaml
   device_base: !include common/device_base.yaml
-  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+  chip_temp: !include common/chip_temp.yaml
 
 one_wire:
  - platform: gpio
-   pin: D3
+   pin: GPIO7
 
 sensor:
   - platform: dallas_temp
@@ -35,8 +34,8 @@ sensor:
     type: HEAT
 
 output:
-  - platform: esp8266_pwm
-    pin: D2
+  - platform: ledc
+    pin: GPIO8
     frequency: 10 Hz
     id: ${id_prefix}_heater
     power_supply: fan
@@ -44,7 +43,7 @@ output:
 # hacky way to turn on fan with heater
 power_supply:
   - id: fan
-    pin: D1
+    pin: GPIO10
     enable_time: 10s
     keep_on_time: 120s
 
