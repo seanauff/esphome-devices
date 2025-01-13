@@ -7,6 +7,7 @@ api:
 
 ota:
   - platform: esphome
+    id: ${id_prefix}_ota
     password: !secret ota_password
 
 sensor:
