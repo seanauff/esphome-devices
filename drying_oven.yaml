@@ -75,7 +75,7 @@ output:
 power_supply:
   - id: fan
     pin: GPIO10
-    enable_time: 10s
+    enable_time: 4.99s # maximum allowed by component
     keep_on_time: 120s
 
 # button:
