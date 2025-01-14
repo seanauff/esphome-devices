@@ -30,38 +30,38 @@ sensor:
 
   - platform: pid
     climate_id: ${id_prefix}_thermostat
-    name: "Heater Power"
-    id: ${id_prefix}_heater_power
+    name: "PID Result"
+    id: ${id_prefix}_pid_result
     type: RESULT
 
   - platform: pid
     climate_id: ${id_prefix}_thermostat
-    name: "Heater Power"
-    id: ${id_prefix}_heater_power
+    name: "PID Error"
+    id: ${id_prefix}_pid_error
     type: ERROR
 
   - platform: pid
     climate_id: ${id_prefix}_thermostat
-    name: "Heater Power"
-    id: ${id_prefix}_heater_power
+    name: "PID Proportional Term"
+    id: ${id_prefix}_pid_proportional_term
     type: PROPORTIONAL
 
   - platform: pid
     climate_id: ${id_prefix}_thermostat
-    name: "Heater Power"
-    id: ${id_prefix}_heater_power
+    name: "PID Integral Term"
+    id: ${id_prefix}_pid_integral_term
     type: INTEGRAL
 
   - platform: pid
     climate_id: ${id_prefix}_thermostat
-    name: "Heater Power"
-    id: ${id_prefix}_heater_power
+    name: "PID Derivative Term"
+    id: ${id_prefix}_pid_derivative_term
     type: DERIVATIVE
   
   - platform: pid
     climate_id: ${id_prefix}_thermostat
-    name: "Heater Power"
-    id: ${id_prefix}_heater_power
+    name: "PID Heater Power"
+    id: ${id_prefix}_pid_heater_power
     type: HEAT
 
 output:
@@ -75,7 +75,7 @@ output:
 power_supply:
   - id: fan
     pin: GPIO10
-    enable_time: 4.99s # maximum allowed by component
+    enable_time: 4s # maximum allowed by component
     keep_on_time: 120s
 
 # button:
