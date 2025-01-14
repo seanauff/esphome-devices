@@ -29,6 +29,37 @@ sensor:
     device_class: ""
 
   - platform: pid
+    climate_id: ${id_prefix}_thermostat
+    name: "Heater Power"
+    id: ${id_prefix}_heater_power
+    type: RESULT
+
+  - platform: pid
+    climate_id: ${id_prefix}_thermostat
+    name: "Heater Power"
+    id: ${id_prefix}_heater_power
+    type: ERROR
+
+  - platform: pid
+    climate_id: ${id_prefix}_thermostat
+    name: "Heater Power"
+    id: ${id_prefix}_heater_power
+    type: PROPORTIONAL
+
+  - platform: pid
+    climate_id: ${id_prefix}_thermostat
+    name: "Heater Power"
+    id: ${id_prefix}_heater_power
+    type: INTEGRAL
+
+  - platform: pid
+    climate_id: ${id_prefix}_thermostat
+    name: "Heater Power"
+    id: ${id_prefix}_heater_power
+    type: DERIVATIVE
+  
+  - platform: pid
+    climate_id: ${id_prefix}_thermostat
     name: "Heater Power"
     id: ${id_prefix}_heater_power
     type: HEAT
