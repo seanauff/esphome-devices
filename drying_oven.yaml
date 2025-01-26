@@ -7,26 +7,72 @@ esphome:
   name: ${name}
   friendly_name: ${friendly_name}
 
-esp32:
-  board: lolin_c3_mini
+esp8266:
+  board: d1_mini
+  restore_from_flash: false # dont restore state, so oven is always off after reboot
 
 packages:
   wifi: !include common/wifi.yaml
   web_server: !include common/web_server.yaml
   device_base: !include common/device_base.yaml
-  chip_temp: !include common/chip_temp.yaml
+  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+
+# Enable logging
+logger:
+  level: DEBUG # default
+  logs:
+    sensor: INFO # suppress sensor updates
+    dallas.temp.sensor: INFO # suppress sensor updates
+    climate: INFO # suppress sensor updates
 
 one_wire:
  - platform: gpio
-   pin: GPIO7
+   pin: D3
 
 sensor:
+  # oven temp sensor
   - platform: dallas_temp
     address: 0xb6000005fd072928
-    resolution: 10 # 0.25 deg C
+    resolution: 11 # 0.125 deg C, 0.375 s conversion time
+    name: "Oven Temperature"
     id: ${id_prefix}_temperature_sensor
-    update_interval: 0.2 s
-    device_class: ""
+    update_interval: 0.5 s
+    filters:
+      - exponential_moving_average:
+          alpha: 0.1
+          send_every: 1
+  
+  # electronics area temp sensor
+  - platform: dallas_temp
+    address: 0xb2000005fd099128
+    resolution: 11 # 0.125 deg C, 0.375 s conversion time
+    name: "Electronics Temperature"
+    id: ${id_prefix}_electronics_temperature_sensor
+    update_interval: 5 s
+    filters:
+      - exponential_moving_average:
+          alpha: 0.1
+          send_every: 5
+    on_value_range:
+      # if this area gets too hot, disable heating
+      - above: 85.0
+        then:
+          - climate.control:
+              id: ${id_prefix}_thermostat
+              mode: "OFF"
+              target_temperature: 0°C
+
+  # helper for current thermostat setpoint
+  - platform: template
+    name: "Thermostat Setpoint"
+    id: ${id_prefix}_thermostat_setpoint
+    update_interval: 60s # typically updated directly from climate, but periodically sync in case not (like at boot)
+    lambda: 'return id(${id_prefix}_thermostat).target_temperature;'
+    unit_of_measurement: "°C"
+    icon: "mdi:thermometer"
+    device_class: "temperature"
+    state_class: "measurement"
+    accuracy_decimals: 1
 
   - platform: pid
     climate_id: ${id_prefix}_thermostat
@@ -65,8 +111,8 @@ sensor:
     type: HEAT
 
 output:
-  - platform: ledc
-    pin: GPIO8
+  - platform: esp8266_pwm
+    pin: D2
     frequency: 10 Hz
     id: ${id_prefix}_heater
     power_supply: fan
@@ -74,8 +120,8 @@ output:
 # hacky way to turn on fan with heater
 power_supply:
   - id: fan
-    pin: GPIO10
-    enable_time: 4s # maximum allowed by component
+    pin: D1
+    enable_time: 2s # for some reason this causes the dallas temp component to block for this time period so keep it short
     keep_on_time: 120s
 
 # button:
@@ -83,6 +129,61 @@ power_supply:
 #     name: "PID Climate Autotune"
 #     on_press:
 #       - climate.pid.autotune: ${id_prefix}_thermostat
+
+select:
+  - platform: template
+    name: Preset
+    id: ${id_prefix}_preset
+    options:
+     - "ABS"
+     - "Nylon"
+     - "PC"
+     - "PETG"
+     - "PLA"
+     - "TPU"
+     - "OFF"
+    initial_option: "OFF"
+    optimistic: true
+    on_value:
+      - lambda: |-
+          // temperatures from here: https://wiki.bambulab.com/en/filament-acc/filament/dry-filament
+          int index = id(${id_prefix}_preset).active_index().value();
+          auto call = id(${id_prefix}_thermostat).make_call();
+          switch(index) {
+            case 0: // ABS
+              call.set_mode("HEAT");
+              call.set_target_temperature(80.0);
+              break;
+            case 1: // Nylon
+              call.set_mode("HEAT");
+              call.set_target_temperature(80.0);
+              break;
+            case 2: // PC
+              call.set_mode("HEAT");
+              call.set_target_temperature(80.0);
+              break;
+            case 3: // PETG
+              call.set_mode("HEAT");
+              call.set_target_temperature(65.0);
+              break;
+            case 4: // PLA
+              call.set_mode("HEAT");
+              call.set_target_temperature(50.0);
+              break;
+            case 5: // TPU
+              call.set_mode("HEAT");
+              call.set_target_temperature(70.0);
+              break;
+            case 6: // OFF
+              call.set_mode("OFF");
+              call.set_target_temperature(0.0);
+              break;
+            default:
+              call.set_mode("OFF");
+              call.set_target_temperature(0.0);
+              break;
+          }
+          call.perform();
 
 climate:
   - platform: pid
@@ -92,16 +193,18 @@ climate:
     sensor: ${id_prefix}_temperature_sensor
     default_target_temperature: 0°C
     heat_output: ${id_prefix}_heater
-    control_parameters: # okay tuning, still have some oscillations and offset (both <1 degC)
-      kp: 5
-      ki: 0.5
-      kd: 25
-      min_integral: -2
-      max_integral: 2
+    control_parameters:
+      kp: 0.15
+      ki: 0.0015
+      kd: 0.025
+      min_integral: -1 # default
+      max_integral: 1 # default
       output_averaging_samples: 5
     visual:
       min_temperature: 10
-      max_temperature: 80
+      max_temperature: 100
       temperature_step:
-        target_temperature: 0.5
+        target_temperature: 1.0
         current_temperature: 0.1
+    on_control:
+      - lambda: id(${id_prefix}_thermostat_setpoint).publish_state(id(${id_prefix}_thermostat).target_temperature);
