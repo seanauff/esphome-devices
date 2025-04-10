@@ -1,0 +1,20 @@
+# flash unused modules with this to avoid duplicates
+substitutions:
+  name: esphome-blank
+  id_prefix: esphome_blank
+  friendly_name: "Esphome Blank"
+
+esphome:
+  name: ${name}
+  name_add_mac_suffix: true
+
+esp32:
+  board: lolin_c3_mini
+  framework:
+    type: esp-idf
+
+packages:
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  device_base: !include common/device_base.yaml
+  chip_temp: !include common/chip_temp.yaml
