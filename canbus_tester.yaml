@@ -1,0 +1,196 @@
+substitutions:
+  name: canbus_tester
+
+esphome:
+  name: ${name}
+
+esp32:
+  board: nodemcu-32s
+
+packages:
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  device_base: !include common/device_base.yaml
+  chip_temp: !include common/chip_temp.yaml
+
+script:
+  # send a flood of dummy frames to imitate active bus to wake items
+  - id: wake_bus
+    then:
+      - canbus.send:
+          data: !lambda return {static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256)};
+          can_id: 0x105 # possibly speedo
+          use_extended_id: false
+          remote_transmission_request: false
+      - canbus.send:
+          data: !lambda return {static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256)};
+          can_id: 0x3A3 # possibly tach
+          use_extended_id: false
+          remote_transmission_request: false
+      - canbus.send:
+          data: !lambda return {static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256)};
+          can_id: 0x5bf # possibly MFD
+          use_extended_id: false
+          remote_transmission_request: false
+      - canbus.send:
+          data: !lambda return {static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256)};
+          can_id: 0x662 # possibly lights
+          use_extended_id: false
+          remote_transmission_request: false
+      - canbus.send:
+          data: !lambda return {static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256)};
+          can_id: 0x6B5 # possibly oil temp
+          use_extended_id: false
+          remote_transmission_request: false
+  # send dummy frame every second to imitate active bus
+  - id: maintain_bus
+    then:
+      - canbus.send:
+          data: !lambda return {static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256)};
+          can_id: 0x674 # possibly tire pressure
+          use_extended_id: false
+          remote_transmission_request: false
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    on_time:
+      # send dummy frame every second to imitate active bus
+      - cron: '* * * * * *'
+        then:
+          - script.execute: maintain_bus
+
+canbus:
+  - platform: esp32_can
+    tx_pin: GPIO16
+    rx_pin: GPIO17
+    can_id: 0x6B2 # for sport chrono
+    bit_rate: 500KBPS
+
+light:
+  - platform: status_led
+    id: status_led_1
+    pin: GPIO2
+
+button:
+  - platform: template
+    name: "Send CAN Frame"
+    on_press:
+      then:
+      - light.turn_on: status_led_1
+      - canbus.send:
+          data: !lambda return {static_cast<uint8_t>(id(can_bus_byte_1).state), static_cast<uint8_t>(id(can_bus_byte_2).state), static_cast<uint8_t>(id(can_bus_byte_3).state), static_cast<uint8_t>(id(can_bus_byte_4).state), static_cast<uint8_t>(id(can_bus_byte_5).state), static_cast<uint8_t>(id(can_bus_byte_6).state), static_cast<uint8_t>(id(can_bus_byte_7).state), static_cast<uint8_t>(id(can_bus_byte_8).state)};
+          can_id: 1714
+          #can_id: !lambda return id(can_bus_can_id).state;
+          use_extended_id: false
+          remote_transmission_request: false
+      - logger.log: 
+          format: "Sent: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X"
+          args: ['static_cast<uint8_t>(id(can_bus_byte_1).state)','static_cast<uint8_t>(id(can_bus_byte_2).state)','static_cast<uint8_t>(id(can_bus_byte_3).state)','static_cast<uint8_t>(id(can_bus_byte_4).state)','static_cast<uint8_t>(id(can_bus_byte_5).state)','static_cast<uint8_t>(id(can_bus_byte_6).state)','static_cast<uint8_t>(id(can_bus_byte_7).state)','static_cast<uint8_t>(id(can_bus_byte_8).state)']
+      - delay: 500ms
+      - light.turn_off: status_led_1
+  - platform: template
+    name: "Wake CAN Bus"
+    on_press:
+      repeat:
+        count: 5
+        then:
+          - script.execute: wake_bus
+  - platform: template
+    name: "Send Current Time Frame"
+    on_press:
+      then:
+      - light.turn_on: status_led_1
+      - canbus.send:
+          data: !lambda return {0x00, 0x00, 0x00, 0x00, 0x00, static_cast<uint8_t>(((id(homeassistant_time).now().hour % 12) * 16) + 1), static_cast<uint8_t>(id(homeassistant_time).now().minute * 2), static_cast<uint8_t>(round(id(homeassistant_time).now().second / 2))};
+          can_id: 1714
+          #can_id: !lambda return id(can_bus_can_id).state;
+          use_extended_id: false
+          remote_transmission_request: false
+      - logger.log: 
+          format: "Sent: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X"
+          args: ['static_cast<uint8_t>(0x00)','static_cast<uint8_t>(0x00)','static_cast<uint8_t>(0x00)','static_cast<uint8_t>(0x00)','static_cast<uint8_t>(0x00)','static_cast<uint8_t>(((id(homeassistant_time).now().hour % 12) * 16) + 1)','static_cast<uint8_t>(id(homeassistant_time).now().minute * 2)','static_cast<uint8_t>(round(id(homeassistant_time).now().second / 2))']
+      - delay: 500ms
+      - light.turn_off: status_led_1
+
+text_sensor:
+  - platform: template
+    name: "Current Time"
+    internal: true
+    lambda: return {id(homeassistant_time).now().strftime("%Y-%m-%d %H:%M:%S")};
+    update_interval: 1s
+
+number:
+  # - platform: template
+  #   name: "CAN Bus CAN ID"
+  #   id: can_bus_can_id
+  #   internal: false
+  #   optimistic: true
+  #   min_value: 0
+  #   max_value: 2047
+  #   step: 1
+  #   initial_value: 1714
+  - platform: template
+    name: "CAN Bus Byte 1"
+    id: can_bus_byte_1
+    internal: false
+    optimistic: true
+    min_value: 0
+    max_value: 255
+    step: 1
+  - platform: template
+    name: "CAN Bus Byte 2"
+    id: can_bus_byte_2
+    internal: false
+    optimistic: true
+    min_value: 0
+    max_value: 255
+    step: 1
+  - platform: template
+    name: "CAN Bus Byte 3"
+    id: can_bus_byte_3
+    internal: false
+    optimistic: true
+    min_value: 0
+    max_value: 255
+    step: 1
+  - platform: template
+    name: "CAN Bus Byte 4"
+    id: can_bus_byte_4
+    internal: false
+    optimistic: true
+    min_value: 0
+    max_value: 255
+    step: 1
+  - platform: template
+    name: "CAN Bus Byte 5"
+    id: can_bus_byte_5
+    internal: false
+    optimistic: true
+    min_value: 0
+    max_value: 255
+    step: 1
+  - platform: template
+    name: "CAN Bus Byte 6"
+    id: can_bus_byte_6
+    internal: false
+    optimistic: true
+    min_value: 0
+    max_value: 255
+    step: 1
+  - platform: template
+    name: "CAN Bus Byte 7"
+    id: can_bus_byte_7
+    internal: false
+    optimistic: true
+    min_value: 0
+    max_value: 255
+    step: 1
+  - platform: template
+    name: "CAN Bus Byte 8"
+    id: can_bus_byte_8
+    internal: false
+    optimistic: true
+    min_value: 0
+    max_value: 255
+    step: 1
