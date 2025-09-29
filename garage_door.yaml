@@ -34,7 +34,6 @@ packages:
     files: [base_secplusv1.yaml]
     refresh: 1s
   wifi: !include common/wifi.yaml
-  device_base: !include common/device_base.yaml
   web_server: !include common/web_server.yaml
 
 # Sync time with Home Assistant.
@@ -43,3 +42,38 @@ time:
     id: homeassistant_time
 
 improv_serial:
+
+# moved device base items here since conflict with the ota compoennts from ratgdo
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret hass_api_password
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+sensor:
+  - platform: uptime
+    name: "Uptime"
+    id: ${id_prefix}_uptime
+
+text_sensor:
+  - platform: version
+    name: "ESPHome Version"
+    id: ${id_prefix}_esphome_version
+
+button:
+  - platform: restart
+    name: "Restart Node"
+    id: ${id_prefix}_restart_button
+    disabled_by_default: True
+    icon: "mdi:restart"
+
+  - platform: safe_mode
+    name: "Restart Node (Safe Mode)"
+    id: ${id_prefix}_restart_safe_mode
+    disabled_by_default: True
