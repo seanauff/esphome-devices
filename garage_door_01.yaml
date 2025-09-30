@@ -1,17 +1,16 @@
 # https://github.com/ratgdo/esphome-ratgdo/blob/f9590d94ade2792f3dbba9c5ebe7f328a0b43981/static/v25iboard_secplusv1.yaml
 
 substitutions:
-  id_prefix: garage_door
-  name: garage-door
-  friendly_name: "Garage Door"
+  id_prefix: garage_door_01
+  name: garage-door-01
+  friendly_name: "Garage Door 01"
   uart_tx_pin: D1
   uart_rx_pin: D2
   input_obst_pin: D7
-  status_door_pin: D0
-  status_obstruction_pin: D8
   dry_contact_open_pin: D5
   dry_contact_close_pin: D6
-  dry_contact_light_pin: D3
+  discrete_open_pin: D0
+  discrete_close_pin: D8
 
 esphome:
   name: ${name}
@@ -26,12 +25,12 @@ esp8266:
   restore_from_flash: true
 
 dashboard_import:
-  package_import_url: github://ratgdo/esphome-ratgdo/v25iboard_secplusv1.yaml@main
+  package_import_url: github://ratgdo/esphome-ratgdo/v25iboard_drycontact.yaml@main
 
 packages:
   remote_package:
     url: https://github.com/ratgdo/esphome-ratgdo
-    files: [base_secplusv1.yaml]
+    files: [base_drycontact.yaml]
     refresh: 1s
   wifi: !include common/wifi.yaml
   web_server: !include common/web_server.yaml
