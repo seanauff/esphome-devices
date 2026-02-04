@@ -1,4 +1,4 @@
-# https://github.com/ratgdo/esphome-ratgdo/blob/f9590d94ade2792f3dbba9c5ebe7f328a0b43981/static/v25iboard_secplusv1.yaml
+# https://github.com/RATGDO/esphome-ratgdo/blob/main/static/v25iboard.yaml
 
 substitutions:
   id_prefix: garage_door_01
@@ -7,17 +7,18 @@ substitutions:
   uart_tx_pin: D1
   uart_rx_pin: D2
   input_obst_pin: D7
+  status_door_pin: D0
+  status_obstruction_pin: D8
   dry_contact_open_pin: D5
   dry_contact_close_pin: D6
-  discrete_open_pin: D0
-  discrete_close_pin: D8
+  dry_contact_light_pin: D3
 
 esphome:
   name: ${name}
   friendly_name: ${friendly_name}
   name_add_mac_suffix: false
   project:
-    name: ratgdo.esphome
+    name: ratgdo.v25iboard_secplus2
     version: "2.5i"
 
 esp8266:
@@ -25,15 +26,16 @@ esp8266:
   restore_from_flash: true
 
 dashboard_import:
-  package_import_url: github://ratgdo/esphome-ratgdo/v25iboard_drycontact.yaml@main
+  package_import_url: github://ratgdo/esphome-ratgdo/v25iboard.yaml@main
 
 packages:
   remote_package:
     url: https://github.com/ratgdo/esphome-ratgdo
-    files: [base_drycontact.yaml]
+    files: [base.yaml]
     refresh: 1s
   wifi: !include common/wifi.yaml
   web_server: !include common/web_server.yaml
+  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
 
 # Sync time with Home Assistant.
 time:
