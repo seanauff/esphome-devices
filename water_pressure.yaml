@@ -1,0 +1,46 @@
+substitutions:
+  name: water-pressure
+  id_prefix: water_pressure
+  friendly_name: "Water Pressure"
+
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+
+esp32:
+  board: lolin_c3_mini
+  framework:
+    type: esp-idf
+
+packages:
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  device_base: !include common/device_base.yaml
+  chip_temp: !include common/chip_temp.yaml
+
+sensor:
+  - platform: adc
+    pin: GPIO3
+    attenuation: 12db
+    name: "Water Pressure Raw Voltage"
+    id: ${id_prefix}_water_pressure_raw_voltage
+    unit_of_measurement: "V"
+    accuracy_decimals: 3
+    samples: 5
+    update_interval: 10s
+
+  - platform: template
+    name: "Water Pressure"
+    id: ${id_prefix}_water_pressure
+    unit_of_measurement: "psi"
+    icon: "mdi:gauge"
+    accuracy_decimals: 1
+    update_interval: 10s
+    lambda: |-
+      return id(${id_prefix}_water_pressure_raw_voltage).state;
+    # https://docs.google.com/spreadsheets/d/1oPyy6xiM6HDB5ek-y8KKNhnjfx7NZcLlSu-kK-Rz0oE/edit?usp=sharing
+    filters:
+      - multiply: 30.7
+      - offset: -17.1
+      - clamp:
+          min_value: 0.0
