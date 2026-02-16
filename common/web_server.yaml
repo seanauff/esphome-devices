@@ -3,3 +3,6 @@ web_server:
   ota: false
   local: true
   version: 3
+  auth:
+    username: !secret static_web_username
+    password: !secret static_web_password

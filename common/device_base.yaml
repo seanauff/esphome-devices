@@ -3,12 +3,13 @@ logger:
 
 # Enable Home Assistant API
 api:
-  password: !secret hass_api_password
+  encryption:
+    key: !secret static_encryption_key
 
 ota:
   - platform: esphome
     id: ${id_prefix}_ota
-    password: !secret ota_password
+    password: !secret static_ota_password
 
 sensor:
   - platform: uptime
