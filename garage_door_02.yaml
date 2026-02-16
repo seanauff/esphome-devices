@@ -1,41 +1,52 @@
 # https://github.com/RATGDO/esphome-ratgdo/blob/main/static/v25iboard.yaml
 
 substitutions:
-  id_prefix: garage_door_01
-  name: garage-door-01
-  friendly_name: "Garage Door 01"
-  uart_tx_pin: D1
-  uart_rx_pin: D2
-  input_obst_pin: D7
-  status_door_pin: D0
-  status_obstruction_pin: D8
-  dry_contact_open_pin: D5
-  dry_contact_close_pin: D6
-  dry_contact_light_pin: D3
+  id_prefix: garage_door_02
+  name: garage-door-02
+  friendly_name: "Garage Door 02"
+  uart_tx_pin: GPIO17
+  uart_rx_pin: GPIO21
+  input_obst_pin: GPIO4
+  status_door_pin: GPIO26
+  status_obstruction_pin: GPIO25
+  dry_contact_open_pin: GPIO13
+  dry_contact_close_pin: GPIO14
+  dry_contact_light_pin: GPIO27
 
 esphome:
   name: ${name}
   friendly_name: ${friendly_name}
   name_add_mac_suffix: false
   project:
-    name: ratgdo.v25iboard_secplus2
-    version: "2.5i"
+    name: ratgdo.v32board_secplus2
+    version: "32.0"
 
-esp8266:
-  board: d1_mini
-  restore_from_flash: true
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
 
 dashboard_import:
-  package_import_url: github://ratgdo/esphome-ratgdo/v25iboard.yaml@main
+  package_import_url: github://ratgdo/esphome-ratgdo/v32board.yaml@main
 
 packages:
   remote_package:
     url: https://github.com/ratgdo/esphome-ratgdo
+    ref: main
     files: [base.yaml]
     refresh: 1s
+  # remote_package: !include
+  #   file: base.yaml
   wifi: !include common/wifi.yaml
   web_server: !include common/web_server.yaml
-  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+
+switch:
+  - platform: ratgdo
+    id: ${id_prefix}_led
+    type: led
+    pin: GPIO2
+    name: "LED"
+    entity_category: config
 
 # Sync time with Home Assistant.
 time:
@@ -43,6 +54,9 @@ time:
     id: homeassistant_time
 
 improv_serial:
+
+esp32_improv:
+  authorizer: none
 
 # moved device base items here since conflict with the ota components from ratgdo
 
@@ -52,7 +66,7 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: !secret garage_door_01_encryption_key
+    key: !secret garage_door_02_encryption_key
 
 ota:
   - platform: esphome
