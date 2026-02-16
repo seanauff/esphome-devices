@@ -27,7 +27,9 @@ sensor:
     unit_of_measurement: "V"
     accuracy_decimals: 3
     samples: 5
-    update_interval: 10s
+    update_interval: 500ms
+    filters:
+      - delta: 0.25%
 
   - platform: template
     name: "Water Pressure"
@@ -35,7 +37,7 @@ sensor:
     unit_of_measurement: "psi"
     icon: "mdi:gauge"
     accuracy_decimals: 1
-    update_interval: 10s
+    update_interval: 500ms
     lambda: |-
       return id(${id_prefix}_water_pressure_raw_voltage).state;
     # https://docs.google.com/spreadsheets/d/1oPyy6xiM6HDB5ek-y8KKNhnjfx7NZcLlSu-kK-Rz0oE/edit?usp=sharing
@@ -44,3 +46,7 @@ sensor:
       - offset: -17.1
       - clamp:
           min_value: 0.0
+      - delta: 0.25%
+      - heartbeat:
+          period: 60s
+          optimistic: true
