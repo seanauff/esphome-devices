@@ -1,9 +1,13 @@
 substitutions:
-  name: sht30_07
+  name: sht30-07
+  id_prefix: sht30_07
+  friendly_name: "SHT30 07"
 
 esphome:
   name: ${name}
-  platform: ESP8266
+  friendly_name: ${friendly_name}
+
+esp8266:  
   board: d1_mini
 
 packages:
