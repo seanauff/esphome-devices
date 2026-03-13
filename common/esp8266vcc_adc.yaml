@@ -7,3 +7,4 @@ sensor:
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 2
+    entity_category: "diagnostic"
