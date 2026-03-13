@@ -1,0 +1,24 @@
+# flash unused modules with this to avoid duplicates
+substitutions:
+  name: esphome-blank
+  id_prefix: esphome_blank
+  friendly_name: "Esphome Blank"
+
+esphome:
+  name: ${name}
+  name_add_mac_suffix: true
+  friendly_name: ${friendly_name}
+
+esp8266:
+  board: esp12e
+  #restore_from_flash: true # save some values to flash
+  #early_pin_init: true # default
+
+packages:
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  device_base: !include common/device_base.yaml
+  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+
+# logger:
+#   level: VERY_VERBOSE   # more wifi debug
