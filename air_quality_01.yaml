@@ -1,0 +1,184 @@
+substitutions:
+  name: air-quality-01
+  id_prefix: air_quality_01
+  friendly_name: "Air Quality 01"
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  on_boot:
+    - priority: 600
+      then:
+        - output.turn_off: ${id_prefix}_ccs811_reset_pin
+
+esp8266:
+  board: d1_mini
+
+packages:
+  wifi: !include common/wifi.yaml
+  device_base: !include common/device_base.yaml
+  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+
+i2c:
+  sda: D2
+  scl: D1
+  scan: true
+
+output:
+  - platform: gpio
+    id: ${id_prefix}_ccs811_reset_pin
+    pin: D8
+    inverted: true
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: D3
+      mode:
+        input: true
+        pullup: true
+    name: "SCD30 Data Ready"
+    id: ${id_prefix}_scd30_data_ready
+
+sensor:
+##### SCD30 CO2 sensor #####
+  - platform: scd30
+    co2:
+      name: "NDIR CO2"
+      id: ${id_prefix}_ndir_co2
+      accuracy_decimals: 0
+      filters:
+        - median:
+            window_size: 10
+            send_every: 1
+            send_first_at: 1
+        - exponential_moving_average:
+            alpha: 0.2
+            send_every: 15
+    temperature:
+      name: "Temperature"
+      id: ${id_prefix}_temperature
+      accuracy_decimals: 1
+      filters:
+        - median:
+            window_size: 10
+            send_every: 1
+            send_first_at: 1
+        - exponential_moving_average:
+            alpha: 0.2
+            send_every: 15
+    humidity:
+      name: "Humidity"
+      id: ${id_prefix}_humidity
+      accuracy_decimals: 0
+      filters:
+        - median:
+            window_size: 10
+            send_every: 1
+            send_first_at: 1
+        - exponential_moving_average:
+            alpha: 0.2
+            send_every: 15
+    #temperature_offset: 1.5 °C
+    automatic_self_calibration: true
+    #ambient_pressure_compensation: 800mbar
+    altitude_compensation: 285m
+    address: 0x61
+    update_interval: 2s
+  
+  - platform: duty_cycle
+    pin: D4
+    name: "SCD30 PWM Duty Cycle"
+    id: ${id_prefix}_scd30_pwm_duty_cycle
+    update_interval: 60s
+
+##### Particulate Matter Sensor - SPS30 #####
+  - platform: sps30
+    id: ${id_prefix}_sps30
+    pm_1_0:
+      name: "PM <1µm Mass concentration"
+      id: ${id_prefix}_pm_1_0
+    pm_2_5:
+      name: "PM <2.5µm Mass concentration"
+      id: ${id_prefix}_pm_2_5
+    pm_4_0:
+      name: "PM <4µm Mass concentration"
+      id: ${id_prefix}_pm_4_0
+    pm_10_0:
+      name: "PM <10µm Mass concentration"
+      id: ${id_prefix}_pm_10_0
+    pmc_0_5:
+      name: "PM <0.5µm Number concentration"
+      id: ${id_prefix}_pmc_0_5
+    pmc_1_0:
+      name: "PM <1µm Number concentration"
+      id: ${id_prefix}_pmc_1_0
+    pmc_2_5:
+      name: "PM <2.5µm Number concentration"
+      id: ${id_prefix}_pmc_2_5
+    pmc_4_0:
+      name: "PM <4µm Number concentration"
+      id: ${id_prefix}_pmc_4_0
+    pmc_10_0:
+      name: "PM <10µm Number concentration"
+      id: ${id_prefix}_pmc_10_0
+    address: 0x69
+    update_interval: 60s
+
+##### CCS811 TVOC sensor #####
+  - platform: ccs811
+    eco2:
+      name: "eCO2"
+      id: ${id_prefix}_eco2
+    tvoc:
+      name: "TVOC"
+      id: ${id_prefix}_tvoc
+    address: 0x5A
+    temperature: ${id_prefix}_temperature
+    humidity: ${id_prefix}_humidity
+    update_interval: 60s
+    
+button:
+# Example on how to implement a UI section in HA for manual calibration.
+# Note: Please enter first a CO2 value before pressing the button.
+  - platform: template
+    name: "SCD30 Manual Calibration"
+    id: ${id_prefix}_scd30_manual_calibration
+    icon: "mdi:crosshairs-gps"
+    entity_category: "config"
+    on_press:
+      then:
+        - scd30.force_recalibration_with_reference:
+            value: !lambda 'return id(${id_prefix}_co2_cal).state;'
+
+  - platform: template
+    name: "SPS30 Fan Clean"
+    id: ${id_prefix}_sps30_fan_clean
+    icon: "mdi:fan"
+    entity_category: "diagnostic"
+    on_press:
+      then:
+        - sps30.start_fan_autoclean: ${id_prefix}_sps30
+
+  - platform: template
+    name: "CCS811 Sensor Reset"
+    id: ${id_prefix}_ccs811_reset_button
+    entity_category: "diagnostic"
+    icon: "mdi:restart"
+    on_press:
+      then:
+        - output.turn_on: ${id_prefix}_ccs811_reset_pin
+        - delay: 200ms
+        - output.turn_off: ${id_prefix}_ccs811_reset_pin
+
+number:
+  - platform: template
+    name: "SCD30 CO2 Calibration Value"
+    id: ${id_prefix}_co2_cal
+    unit_of_measurement: "ppm"
+    optimistic: true
+    min_value: 350
+    max_value: 4500
+    step: 1
+    icon: "mdi:molecule-co2"
+    entity_category: "config"
