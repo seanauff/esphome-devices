@@ -11,29 +11,31 @@ esphome:
       then:
         - output.turn_off: ${id_prefix}_ccs811_reset_pin
 
-esp8266:
-  board: d1_mini
+esp32:
+  board: lolin_c3_mini
+  framework:
+    type: esp-idf
 
 packages:
   wifi: !include common/wifi.yaml
   device_base: !include common/device_base.yaml
-  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+  chip_temp: !include common/chip_temp.yaml
 
 i2c:
-  sda: D2
-  scl: D1
+  sda: GPIO8
+  scl: GPIO10
   scan: true
 
 output:
   - platform: gpio
     id: ${id_prefix}_ccs811_reset_pin
-    pin: D8
+    pin: GPIO5
     inverted: true
 
 binary_sensor:
   - platform: gpio
     pin:
-      number: D3
+      number: GPIO7
       mode:
         input: true
         pullup: true
@@ -59,6 +61,7 @@ sensor:
       name: "Temperature"
       id: ${id_prefix}_temperature
       accuracy_decimals: 1
+      unit_of_measurement: "°C" # keep in °C, convert in home assistant for display
       filters:
         - median:
             window_size: 10
@@ -87,10 +90,19 @@ sensor:
     update_interval: 2s
   
   - platform: duty_cycle
-    pin: D4
+    pin: GPIO6
     name: "SCD30 PWM Duty Cycle"
     id: ${id_prefix}_scd30_pwm_duty_cycle
-    update_interval: 60s
+    update_interval: 2s
+    filters:
+      - lambda: return x / 100.0 * 5000.0; # convert to ppm
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
 
 ##### Particulate Matter Sensor - SPS30 #####
   - platform: sps30
