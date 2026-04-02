@@ -21,6 +21,9 @@ packages:
   device_base: !include common/device_base.yaml
   chip_temp: !include common/chip_temp.yaml
 
+wifi:
+  output_power: 11dBm # decrease to enable connection
+
 i2c:
   sda: GPIO8
   scl: GPIO10
@@ -41,7 +44,7 @@ binary_sensor:
         pullup: true
     name: "SCD30 Data Ready"
     id: ${id_prefix}_scd30_data_ready
-
+    internal: true # do not expose to home assistant 
 sensor:
 ##### SCD30 CO2 sensor #####
   - platform: scd30
@@ -95,7 +98,22 @@ sensor:
     id: ${id_prefix}_scd30_pwm_duty_cycle
     update_interval: 2s
     filters:
-      - lambda: return x / 100.0 * 5000.0; # convert to ppm
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
+
+  - platform: template
+    name: "NDIR CO2 via PWM"
+    id: ${id_prefix}_ndir_co2_pwm
+    unit_of_measurement: "ppm"
+    accuracy_decimals: 0
+    update_interval: 2s
+    lambda: return id(${id_prefix}_scd30_pwm_duty_cycle).state /100.0 * 5000.0;
+    filters:
       - median:
           window_size: 10
           send_every: 1
@@ -110,41 +128,129 @@ sensor:
     pm_1_0:
       name: "PM <1µm Mass concentration"
       id: ${id_prefix}_pm_1_0
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     pm_2_5:
       name: "PM <2.5µm Mass concentration"
       id: ${id_prefix}_pm_2_5
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     pm_4_0:
       name: "PM <4µm Mass concentration"
       id: ${id_prefix}_pm_4_0
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     pm_10_0:
       name: "PM <10µm Mass concentration"
       id: ${id_prefix}_pm_10_0
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     pmc_0_5:
       name: "PM <0.5µm Number concentration"
       id: ${id_prefix}_pmc_0_5
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     pmc_1_0:
       name: "PM <1µm Number concentration"
       id: ${id_prefix}_pmc_1_0
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     pmc_2_5:
       name: "PM <2.5µm Number concentration"
       id: ${id_prefix}_pmc_2_5
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     pmc_4_0:
       name: "PM <4µm Number concentration"
       id: ${id_prefix}_pmc_4_0
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     pmc_10_0:
       name: "PM <10µm Number concentration"
       id: ${id_prefix}_pmc_10_0
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     address: 0x69
-    update_interval: 60s
+    update_interval: 10s
 
 ##### CCS811 TVOC sensor #####
   - platform: ccs811
     eco2:
       name: "eCO2"
       id: ${id_prefix}_eco2
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     tvoc:
       name: "TVOC"
       id: ${id_prefix}_tvoc
+      filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
     address: 0x5A
     temperature: ${id_prefix}_temperature
     humidity: ${id_prefix}_humidity
