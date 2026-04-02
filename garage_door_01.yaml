@@ -79,3 +79,31 @@ button:
     name: "Restart Node (Safe Mode)"
     id: ${id_prefix}_restart_safe_mode
     disabled_by_default: True
+
+script:
+  - id: "${id_prefix}_obstruction_light_timer"
+    mode: restart
+    then:
+      - delay: 5min
+      - light.turn_off: ${id_prefix}_light
+
+binary_sensor:
+  - platform: template
+    id: "${id_prefix}_obstruction_light_trigger"
+    lambda: return id(${id_prefix}_obstruction).state;
+    internal: true
+    on_press:
+      then:
+        - light.turn_on: ${id_prefix}_light
+        - script.execute: ${id_prefix}_obstruction_light_timer
+
+  - platform: template
+    id: "${id_prefix}_light_state_monitor"
+    lambda: return id(${id_prefix}_light).current_values.is_on();
+    internal: true
+    on_press:
+      then:
+        - script.stop: ${id_prefix}_obstruction_light_timer
+    on_release:
+      then:
+        - script.stop: ${id_prefix}_obstruction_light_timer
