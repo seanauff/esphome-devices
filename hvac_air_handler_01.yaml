@@ -1,0 +1,127 @@
+substitutions:
+  name: hvac-air-handler-01
+  id_prefix: hvac_air_handler_01
+  friendly_name: "HVAC Air Handler 01"
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  on_boot:
+    - light.turn_on:
+        id: ${id_prefix}_status_led
+        effect: "Status Indicator"
+
+esp32:
+  board: lolin_c3_mini
+  framework:
+    type: esp-idf
+
+packages:
+  wifi: !include common/wifi.yaml
+  #web_server: !include common/web_server.yaml
+  device_base: !include common/device_base.yaml
+  chip_temp: !include common/chip_temp.yaml
+
+wifi:
+  output_power: 11dBm # decrease to enable connection
+
+# Enable logging
+logger:
+  level: DEBUG
+  logs:
+    sensor: INFO
+    dallas.temp.sensor: INFO
+
+one_wire:
+  - platform: gpio
+    pin: GPIO8
+
+sensor:
+  - platform: dallas_temp
+    address: 0xb1082580b6b6bc28
+    resolution: 11  # 0.125 °C precision
+    name: "Return Temperature"
+    id: ${id_prefix}_return_temp
+    unit_of_measurement: "°C" # keep all internal values in °C
+    update_interval: 1s
+    filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
+
+  - platform: dallas_temp
+    address: 0xe0082580a2e5c328
+    resolution: 11  # 0.125 °C precision
+    name: "Supply Temperature"
+    id: ${id_prefix}_supply_temp
+    unit_of_measurement: "°C" # keep all internal values in °C
+    update_interval: 1s
+    filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
+
+  - platform: template
+    name: "Temperature Difference"
+    id: ${id_prefix}_temp_diff
+    unit_of_measurement: "°C" # keep all internal values in °C
+    accuracy_decimals: 2
+    update_interval: 1s
+    lambda: 'return id(${id_prefix}_supply_temp).state - id(${id_prefix}_return_temp).state;'
+    device_class: "temperature"
+    state_class: "measurement"
+    filters:
+      - throttle_average: 30s
+    on_value:
+      then:
+        - light.turn_on:
+            id: ${id_prefix}_status_led
+            effect: "Status Indicator"
+
+  - platform: template
+    name: "Temperature Difference (°F)"
+    id: ${id_prefix}_temp_diff_f
+    unit_of_measurement: "°F" # home assistant doesn't convert realative temperature differences, so we convert to °F here for display
+    accuracy_decimals: 2
+    update_interval: 1s
+    lambda: 'return (id(${id_prefix}_supply_temp).state - id(${id_prefix}_return_temp).state) * 9.0/5.0;' # conversion to °F difference (no +32 since it's a difference)
+    device_class: "temperature"
+    state_class: "measurement"
+    filters:
+      - throttle_average: 30s
+
+light:
+  - platform: esp32_rmt_led_strip
+    id: ${id_prefix}_status_led
+    pin: GPIO7
+    num_leds: 1
+    rgb_order: GRB
+    chipset: WS2812
+    restore_mode: RESTORE_DEFAULT_OFF
+    effects:
+      - addressable_lambda:
+          name: "Status Indicator"
+          lambda: |-
+            float diff = id(${id_prefix}_temp_diff).state;
+            if (isnan(diff)) {
+              it[0] = Color(0, 0, 0);  // Off if no data
+            } else if (diff > 1.0f) {
+              // Warm tones: red to orange based on magnitude
+              uint8_t green_intensity = max(0, 255 - (uint8_t)(min(diff, 10.0f) * 25.5f));
+              it[0] = Color(255, green_intensity, 0);
+            } else if (diff < -1.0f) {
+              // Cool tones: blue to cyan based on magnitude
+              uint8_t green_intensity = max(0, 255 - (uint8_t)(min(-diff, 10.0f) * 25.5f));
+              it[0] = Color(0, green_intensity, 255);
+            } else {
+              // Neutral: green
+              it[0] = Color(0, 255, 0);
+            }
