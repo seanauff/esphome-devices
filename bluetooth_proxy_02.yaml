@@ -1,0 +1,7 @@
+substitutions:
+  name: bluetooth-proxy-02
+  id_prefix: bluetooth_proxy_02
+  friendly_name: "Bluetooth Proxy 02"
+
+packages:
+  bluetooth_proxy_base: !include common/bluetooth_proxy_base.yaml
