@@ -1,0 +1,100 @@
+substitutions:
+  name: pool-pump-house
+  id_prefix: pool_pump_house
+  friendly_name: "Pool Pump House"
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+esp8266:
+  board: d1_mini
+
+packages:
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  device_base: !include common/device_base.yaml
+  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+
+# Enable logging
+logger:
+  level: DEBUG
+  logs:
+    sensor: INFO
+    dallas.temp.sensor: INFO
+
+one_wire:
+  - platform: gpio
+    pin: D2
+
+sensor:
+  - platform: dallas_temp
+    address: 0x4a082580a9637128
+    resolution: 11  # 0.125°C precision
+    name: "Water Temperature"
+    id: ${id_prefix}_water_temperature
+    unit_of_measurement: "°C" # keep all internal values in °C, convert to °F in Home Assistant if needed
+    update_interval: 1s
+    filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
+  - platform: dallas_temp
+    address: 0x3c000000b3393828
+    resolution: 11  # 0.125°C precision
+    name: "Air Temperature"
+    id: ${id_prefix}_air_temperature
+    unit_of_measurement: "°C" # keep all internal values in °C, convert to °F in Home Assistant if needed
+    update_interval: 1s
+    filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
+
+  # Water Filter Pressure Sensor (using ADC)
+  - platform: adc
+    pin: A0
+    #attenuation: 11db # only on esp32
+    name: "Water Filter Pressure Raw Voltage"
+    id: ${id_prefix}_water_filter_pressure_raw_voltage
+    unit_of_measurement: "V"
+    accuracy_decimals: 3
+    samples: 5
+    update_interval: 500ms
+    filters:
+      - median:
+          window_size: 10
+          send_every: 1
+          send_first_at: 1
+      - exponential_moving_average:
+          alpha: 0.2
+          send_every: 15
+      - delta: 0.25%
+
+  - platform: template
+    name: "Water Filter Pressure"
+    id: ${id_prefix}_water_filter_pressure
+    unit_of_measurement: "psi"
+    icon: "mdi:gauge"
+    accuracy_decimals: 1
+    update_interval: 500ms
+    lambda: |-
+      return id(${id_prefix}_water_filter_pressure_raw_voltage).state;
+    # https://docs.google.com/spreadsheets/d/1oPyy6xiM6HDB5ek-y8KKNhnjfx7NZcLlSu-kK-Rz0oE/edit?usp=sharing
+    filters:
+      - multiply: 119
+      - offset: -21.7
+      - clamp:
+          min_value: 0.0
+      - delta: 0.25%
+      - heartbeat:
+          period: 60s
+          optimistic: true
