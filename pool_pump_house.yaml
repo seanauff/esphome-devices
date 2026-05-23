@@ -14,7 +14,7 @@ packages:
   wifi: !include common/wifi.yaml
   web_server: !include common/web_server.yaml
   device_base: !include common/device_base.yaml
-  esp8266vcc_adc: !include common/esp8266vcc_adc.yaml
+  #esp8266vcc_adc: !include common/esp8266vcc_adc.yaml #can't use this because it uses the VCC pin which is needed for the water filter pressure sensor
 
 # Enable logging
 logger:
@@ -70,6 +70,7 @@ sensor:
     samples: 5
     update_interval: 500ms
     filters:
+      - multiply: 3.3 # scale to actual voltage at pin since d1 mini has a voltage divider on the ADC pin
       - median:
           window_size: 10
           send_every: 1
@@ -90,8 +91,8 @@ sensor:
       return id(${id_prefix}_water_filter_pressure_raw_voltage).state;
     # https://docs.google.com/spreadsheets/d/1oPyy6xiM6HDB5ek-y8KKNhnjfx7NZcLlSu-kK-Rz0oE/edit?usp=sharing
     filters:
-      - multiply: 119
-      - offset: -21.7
+      - multiply: 13.86
+      - offset: 1.87
       - clamp:
           min_value: 0.0
       - delta: 0.25%
