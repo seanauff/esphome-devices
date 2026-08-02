@@ -43,6 +43,11 @@ sensor:
       - exponential_moving_average:
           alpha: 0.2
           send_every: 15
+      - lambda: |-
+          if (id(${id_prefix}_water_filter_pressure).state > 6.0) {
+            return x;
+          }
+          return {};
   - platform: dallas_temp
     address: 0x3c000000b3393828
     resolution: 11  # 0.125°C precision
