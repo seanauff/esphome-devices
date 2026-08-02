@@ -104,3 +104,60 @@ sensor:
       - heartbeat:
           period: 60s
           optimistic: true
+
+  # Pump RPM Sensor (estimated from water filter pressure)      
+  - platform: template
+    name: "Pump RPM (Estimated)"
+    id: ${id_prefix}_pump_rpm_estimated
+    unit_of_measurement: "RPM"
+    icon: "mdi:gauge"
+    accuracy_decimals: 0
+    update_interval: 15s
+    lambda: |-
+      float val = id(${id_prefix}_water_filter_pressure).state;
+      if (val <= 0.0) return NAN; // // Avoid math errors for zero or negative numbers
+      return -2769.0 + 1918.0 * logf(val);
+
+  # Pump Flow Rate Sensor (estimated from water filter pressure)
+  - platform: template
+    name: "Pump Flow Rate (Estimated)"
+    id: ${id_prefix}_pump_flow_rate_estimated
+    unit_of_measurement: "GPM"
+    icon: "mdi:gauge"
+    accuracy_decimals: 1
+    update_interval: 15s
+    lambda: |-
+      float val = id(${id_prefix}_water_filter_pressure).state;
+      if (val <= 0.0) return NAN; // // Avoid math errors for zero or negative numbers
+      return -65.0 + 42.9 * logf(val);
+  
+  # Pump Power Sensor (estimated from water filter pressure)
+  - platform: template
+    name: "Pump Power (Estimated)"
+    id: ${id_prefix}_pump_power_estimated
+    unit_of_measurement: "W"
+    icon: "mdi:gauge"
+    accuracy_decimals: 0
+    update_interval: 15s
+    lambda: |-
+      float val = id(${id_prefix}_water_filter_pressure).state;
+      return -88.5 + 5.74* val + 2.34 * val * val;
+
+  # Total Daily Energy Sensor
+  - platform: total_daily_energy
+    name: "Total Daily Energy"
+    id: ${id_prefix}_total_daily_energy
+    power_id: ${id_prefix}_pump_power_estimated
+    unit_of_measurement: 'kWh'
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 3
+    filters:
+      # Multiplication factor from W to kW is 0.001
+      - multiply: 0.001
+
+# Enable time component to reset energy at midnight
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    
