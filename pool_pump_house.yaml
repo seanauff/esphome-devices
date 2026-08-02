@@ -34,6 +34,7 @@ sensor:
     name: "Water Temperature"
     id: ${id_prefix}_water_temperature
     unit_of_measurement: "°C" # keep all internal values in °C, convert to °F in Home Assistant if needed
+    icon: mdi:pool-thermometer
     update_interval: 1s
     filters:
       - median:
@@ -71,6 +72,7 @@ sensor:
     name: "Water Filter Pressure Raw Voltage"
     id: ${id_prefix}_water_filter_pressure_raw_voltage
     unit_of_measurement: "V"
+    icon: "mdi:current-dc"
     accuracy_decimals: 3
     samples: 5
     update_interval: 500ms
@@ -110,6 +112,8 @@ sensor:
     name: "Pump RPM (Estimated)"
     id: ${id_prefix}_pump_rpm_estimated
     unit_of_measurement: "RPM"
+    device_class: "" # angular speed is not yet a home assistant device class
+    state_class: measurement
     icon: "mdi:gauge"
     accuracy_decimals: 0
     update_interval: 15s
@@ -122,7 +126,10 @@ sensor:
   - platform: template
     name: "Pump Flow Rate (Estimated)"
     id: ${id_prefix}_pump_flow_rate_estimated
-    unit_of_measurement: "GPM"
+    unit_of_measurement: "gal/min"
+    icon: mdi:waves-arrow-left
+    device_class: volume_flow_rate
+    state_class: measurement
     icon: "mdi:gauge"
     accuracy_decimals: 1
     update_interval: 15s
@@ -136,7 +143,9 @@ sensor:
     name: "Pump Power (Estimated)"
     id: ${id_prefix}_pump_power_estimated
     unit_of_measurement: "W"
-    icon: "mdi:gauge"
+    device_class: power
+    state_class: measurement
+    icon: "mdi:lightning-bolt-circle"
     accuracy_decimals: 0
     update_interval: 15s
     lambda: |-
@@ -149,6 +158,7 @@ sensor:
     id: ${id_prefix}_total_daily_energy
     power_id: ${id_prefix}_pump_power_estimated
     unit_of_measurement: 'kWh'
+    icon: "mdi:lightning-bolt-circle"
     state_class: total_increasing
     device_class: energy
     accuracy_decimals: 3
